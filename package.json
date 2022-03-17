@@ -1,10 +1,13 @@
 {
-  "name": "token",
+  "name": "@hummus/token",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "engines": {
     "node": ">=14"
+  },
+  "repository": {
+    "url": "git@github.com:Hummus-Defi/token.git"
   },
   "devDependencies": {
     "@chainlink/contracts": "^0.3.0",
