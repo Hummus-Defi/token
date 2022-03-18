@@ -1,24 +1,26 @@
 # Core Deployment
 
-Deploy Token
+Add the `.openzeppelin` file for the network from `@hummus/stableswap` on the first run to re-use the proxy admin.
+
+Deploy Token. Set `TOKEN` variable address in `hardhat.config.ts`.
 
 ```
 npx hardhat run scripts/deploy_token.ts
 ```
 
-Deploy Whitelist
+Deploy Whitelist. Set `WHITELIST` variable address in `hardhat.config.ts`.
 
 ```
 npx hardhat run scripts/deploy_whitelist.ts
 ```
 
-Deploy Staking w/o initialization
+Deploy Staking w/o initialization. Set `STAKING` variable address in `hardhat.config.ts`.
 
 ```
 npx hardhat run scripts/deploy_staking.ts
 ```
 
-Deploy and initialize Vote Escrow Token
+Deploy and initialize Vote Escrow Token. Set `VE_TOKEN` variable address in `hardhat.config.ts`.
 
 ```
 npx hardhat run scripts/deploy_ve_token.ts

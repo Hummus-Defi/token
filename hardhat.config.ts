@@ -7,6 +7,7 @@ import '@nomiclabs/hardhat-etherscan'
 import '@typechain/hardhat'
 import '@openzeppelin/hardhat-upgrades'
 import 'solidity-coverage'
+import 'hardhat-abi-exporter'
 import 'hardhat-deploy'
 import 'hardhat-gas-reporter'
 import 'hardhat-docgen'
@@ -59,6 +60,12 @@ const config: HardhatUserConfig = {
     outDir: './build/typechain/',
     target: 'ethers-v5',
   },
+  abiExporter: {
+    flat: true,
+    clear: true,
+    runOnCompile: true,
+    path: './build/abi',
+  },
   mocha: {
     timeout: 200000,
   },
@@ -68,13 +75,16 @@ const config: HardhatUserConfig = {
     // contracts
 
     STAKING: {
-      42: '',
+      42: '0x765099591EA91DFAb032dD12cBFbe5976319FdF4',
     },
     TOKEN: {
-      42: '',
+      42: '0xe8Eb8149ac20d75C5fAE054FE5C3A9688aCa8c67',
     },
     VE_TOKEN: {
-      42: '',
+      42: '0x955514d7e1DB34BB612c7a0Bbd63D25eA02dD29A',
+    },
+    WHITELIST: {
+      42: '0x927BADD28b3AF1156e9cCAb2F0FA3AFb13af8b65',
     },
 
     // lp assets
