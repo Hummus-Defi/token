@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-solhint'
@@ -13,9 +15,6 @@ import '@hardhat-docgen/markdown'
 import 'hardhat-contract-sizer'
 
 import { HardhatUserConfig } from 'hardhat/config'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
@@ -24,21 +23,23 @@ const config: HardhatUserConfig = {
       url: process.env.ALCHEMY_API || '',
       gasPrice: 140 * 1000000000,
     },
-    fuji: {
-      url: 'https://api.avax-test.network/ext/bc/C/rpc',
-      gas: 5000000,
-      gasPrice: 180 * 1000000000,
-      chainId: 43113,
+    rinkeby: {
+      url: process.env.RINKEBY_API || '',
+      chainId: 4,
+      gasPrice: 5 * 1000000000,
     },
-    ava_mainnet: {
-      url: 'https://api.avax.network/ext/bc/C/rpc',
-      gasPrice: 80 * 1000000000,
-      chainId: 43114,
+    kovan: {
+      url: process.env.KOVAN_API || '',
+      chainId: 42,
+      gasPrice: 2 * 1000000000,
     },
-    bsc_mainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
-      chainId: 56,
-      gasPrice: 5000000000,
+    stardust: {
+      url: 'https://stardust.metis.io/?owner=588',
+      chainId: 588,
+    },
+    andromeda: {
+      url: 'https://andromeda.metis.io/?owner=1088',
+      chainId: 1088,
     },
   },
   solidity: {
@@ -62,8 +63,30 @@ const config: HardhatUserConfig = {
     timeout: 200000,
   },
   namedAccounts: {
-    deployer: {
-      default: 0,
+    deployer: 0,
+
+    // contracts
+
+    STAKING: {
+      42: '',
+    },
+    TOKEN: {
+      42: '',
+    },
+    VE_TOKEN: {
+      42: '',
+    },
+
+    // lp assets
+
+    HLPDAI: {
+      42: '0x53211440f038dBBe9DE1B9fa58757cb430ecb752',
+    },
+    HLPUSDC: {
+      42: '0x0F6f2E19Bc2Ad2b847dd329A0D89DC0043003754',
+    },
+    HLPUSDT: {
+      42: '0x44ba84500C5CeEB235653BA4952bc61F376847Ec',
     },
   },
   docgen: {
@@ -85,16 +108,20 @@ if (process.env.ACCOUNT_PRIVATE_KEYS) {
       ...config.networks?.mainnet,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-    fuji: {
-      ...config.networks?.fuji,
+    rinkeby: {
+      ...config.networks?.rinkeby,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-    ava_mainnet: {
-      ...config.networks?.ava_mainnet,
+    kovan: {
+      ...config.networks?.kovan,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-    bsc_mainnet: {
-      ...config.networks?.bsc_mainnet,
+    stardust: {
+      ...config.networks?.stardust,
+      accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
+    },
+    andromeda: {
+      ...config.networks?.andromeda,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
   }

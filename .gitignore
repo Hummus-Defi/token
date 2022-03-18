@@ -13,7 +13,6 @@ cache
 artifacts
 src/types/
 build
-.openzeppelin
 
 # Mac files
 .DS_Store

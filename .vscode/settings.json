@@ -1,0 +1,17 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "solidity.linter": "solhint",
+  "solidity.compileUsingRemoteVersion": "v0.8.9+commit.e5eed63a",
+  "solidity.packageDefaultDependenciesContractsDirectory": "",
+  "solidity.packageDefaultDependenciesDirectory": "node_modules",
+  "solidity.enabledAsYouTypeCompilationErrorCheck": true,
+  "solidity.validationDelay": 1500,
+  "mochaExplorer.env": {
+    "HARDHAT_CONFIG": "hardhat.config.ts",
+    "HARDHAT_COMPILE": "true"
+  },
+  "mochaExplorer.require": ["ts-node/register/transpile-only"]
+}
