@@ -14,6 +14,7 @@ import 'hardhat-docgen'
 import '@hardhat-docgen/core'
 import '@hardhat-docgen/markdown'
 import 'hardhat-contract-sizer'
+import 'hardhat-spdx-license-identifier'
 
 import { HardhatUserConfig } from 'hardhat/config'
 
@@ -65,6 +66,10 @@ const config: HardhatUserConfig = {
     clear: true,
     runOnCompile: true,
     path: './build/abi',
+  },
+  spdxLicenseIdentifier: {
+    overwrite: false,
+    runOnCompile: true,
   },
   mocha: {
     timeout: 200000,

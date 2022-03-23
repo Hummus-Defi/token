@@ -1,6 +1,8 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
 /// @title the ptp token
 /// Note initially forked from Uniswap and then upgraded to 0.8.9

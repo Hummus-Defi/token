@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.9;
 
 /// @title IERC2981Royalties
