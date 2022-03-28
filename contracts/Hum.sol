@@ -4,20 +4,20 @@ pragma solidity 0.8.9;
 
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
-/// @title the ptp token
+/// @title the hum token
 /// Note initially forked from Uniswap and then upgraded to 0.8.9
-contract Ptp {
+contract Hum {
     /// @notice EIP-20 token name for this token
-    string public constant name = 'Platypus';
+    string public constant name = 'Hummus';
 
     /// @notice EIP-20 token symbol for this token
-    string public constant symbol = 'PTP';
+    string public constant symbol = 'HUM';
 
     /// @notice EIP-20 token decimals for this token
     uint8 public constant decimals = 18;
 
     /// @notice Total number of tokens in circulation
-    uint256 public totalSupply = 300_000_000e18; // 300M PTP
+    uint256 public totalSupply = 300_000_000e18; // 300M HUM
 
     /// @notice Address which may mint new tokens
     address public minter;
@@ -58,7 +58,7 @@ contract Ptp {
     event Approval(address indexed owner, address indexed spender, uint256 amount);
 
     /**
-     * @notice Construct a new Ptp token
+     * @notice Construct a new Hum token
      * @param account The initial account to grant all the tokens
      * @param minter_ The account with minting ability
      * @param mintingAllowedAfter_ The timestamp after which minting may occur
@@ -68,7 +68,7 @@ contract Ptp {
         address minter_,
         uint256 mintingAllowedAfter_
     ) {
-        require(mintingAllowedAfter_ >= block.timestamp, 'Ptp::constructor: minting can only begin after deployment');
+        require(mintingAllowedAfter_ >= block.timestamp, 'Hum::constructor: minting can only begin after deployment');
 
         balances[account] = uint96(totalSupply);
         emit Transfer(address(0), account, totalSupply);
@@ -82,7 +82,7 @@ contract Ptp {
      * @param minter_ The address of the new minter
      */
     function setMinter(address minter_) external {
-        require(msg.sender == minter, 'Ptp::setMinter: only the minter can change the minter address');
+        require(msg.sender == minter, 'Hum::setMinter: only the minter can change the minter address');
         emit MinterChanged(minter, minter_);
         minter = minter_;
     }
@@ -93,20 +93,20 @@ contract Ptp {
      * @param rawAmount The number of tokens to be minted
      */
     function mint(address dst, uint256 rawAmount) external {
-        require(msg.sender == minter, 'Ptp::mint: only the minter can mint');
-        require(block.timestamp >= mintingAllowedAfter, 'Ptp::mint: minting not allowed yet');
-        require(dst != address(0), 'Ptp::mint: cannot transfer to the zero address');
+        require(msg.sender == minter, 'Hum::mint: only the minter can mint');
+        require(block.timestamp >= mintingAllowedAfter, 'Hum::mint: minting not allowed yet');
+        require(dst != address(0), 'Hum::mint: cannot transfer to the zero address');
 
         // record the mint
         mintingAllowedAfter = SafeMath.add(block.timestamp, minimumTimeBetweenMints);
 
         // mint the amount
-        uint96 amount = safe96(rawAmount, 'Ptp::mint: amount exceeds 96 bits');
-        require(amount <= SafeMath.div(SafeMath.mul(totalSupply, mintCap), 100), 'Ptp::mint: exceeded mint cap');
-        totalSupply = safe96(SafeMath.add(totalSupply, amount), 'Ptp::mint: totalSupply exceeds 96 bits');
+        uint96 amount = safe96(rawAmount, 'Hum::mint: amount exceeds 96 bits');
+        require(amount <= SafeMath.div(SafeMath.mul(totalSupply, mintCap), 100), 'Hum::mint: exceeded mint cap');
+        totalSupply = safe96(SafeMath.add(totalSupply, amount), 'Hum::mint: totalSupply exceeds 96 bits');
 
         // transfer the amount to the recipient
-        balances[dst] = add96(balances[dst], amount, 'Ptp::mint: transfer amount overflows');
+        balances[dst] = add96(balances[dst], amount, 'Hum::mint: transfer amount overflows');
         emit Transfer(address(0), dst, amount);
     }
 
@@ -133,7 +133,7 @@ contract Ptp {
         if (rawAmount == type(uint256).max) {
             amount = type(uint96).max;
         } else {
-            amount = safe96(rawAmount, 'Ptp::approve: amount exceeds 96 bits');
+            amount = safe96(rawAmount, 'Hum::approve: amount exceeds 96 bits');
         }
 
         allowances[msg.sender][spender] = amount;
@@ -161,18 +161,18 @@ contract Ptp {
         bytes32 r,
         bytes32 s
     ) external {
-        // PTP-01M fix
-        require(v == 27 || v == 28, 'Ptp::permit: invalid range for v');
+        // HUM-01M fix
+        require(v == 27 || v == 28, 'Hum::permit: invalid range for v');
         require(
             uint256(s) < 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A1,
-            'Ptp::permit: invalid range for s'
+            'Hum::permit: invalid range for s'
         );
 
         uint96 amount;
         if (rawAmount == type(uint256).max) {
             amount = type(uint96).max;
         } else {
-            amount = safe96(rawAmount, 'Ptp::permit: amount exceeds 96 bits');
+            amount = safe96(rawAmount, 'Hum::permit: amount exceeds 96 bits');
         }
 
         bytes32 domainSeparator = keccak256(
@@ -183,9 +183,9 @@ contract Ptp {
         );
         bytes32 digest = keccak256(abi.encodePacked('\x19\x01', domainSeparator, structHash));
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), 'Ptp::permit: invalid signature');
-        require(signatory == owner, 'Ptp::permit: unauthorized');
-        require(block.timestamp <= deadline, 'Ptp::permit: signature expired');
+        require(signatory != address(0), 'Hum::permit: invalid signature');
+        require(signatory == owner, 'Hum::permit: unauthorized');
+        require(block.timestamp <= deadline, 'Hum::permit: signature expired');
 
         allowances[owner][spender] = amount;
 
@@ -209,7 +209,7 @@ contract Ptp {
      * @return Whether or not the transfer succeeded
      */
     function transfer(address dst, uint256 rawAmount) external returns (bool) {
-        uint96 amount = safe96(rawAmount, 'Ptp::transfer: amount exceeds 96 bits');
+        uint96 amount = safe96(rawAmount, 'Hum::transfer: amount exceeds 96 bits');
         _transferTokens(msg.sender, dst, amount);
         return true;
     }
@@ -228,13 +228,13 @@ contract Ptp {
     ) external returns (bool) {
         address spender = msg.sender;
         uint96 spenderAllowance = allowances[src][spender];
-        uint96 amount = safe96(rawAmount, 'Ptp::approve: amount exceeds 96 bits');
+        uint96 amount = safe96(rawAmount, 'Hum::approve: amount exceeds 96 bits');
 
         if (spender != src && spenderAllowance != type(uint96).max) {
             uint96 newAllowance = sub96(
                 spenderAllowance,
                 amount,
-                'Ptp::transferFrom: transfer amount exceeds spender allowance'
+                'Hum::transferFrom: transfer amount exceeds spender allowance'
             );
             allowances[src][spender] = newAllowance;
 
@@ -250,11 +250,11 @@ contract Ptp {
         address dst,
         uint96 amount
     ) internal {
-        require(src != address(0), 'Ptp::_transferTokens: cannot transfer from the zero address');
-        require(dst != address(0), 'Ptp::_transferTokens: cannot transfer to the zero address');
+        require(src != address(0), 'Hum::_transferTokens: cannot transfer from the zero address');
+        require(dst != address(0), 'Hum::_transferTokens: cannot transfer to the zero address');
 
-        balances[src] = sub96(balances[src], amount, 'Ptp::_transferTokens: transfer amount exceeds balance');
-        balances[dst] = add96(balances[dst], amount, 'Ptp::_transferTokens: transfer amount overflows');
+        balances[src] = sub96(balances[src], amount, 'Hum::_transferTokens: transfer amount exceeds balance');
+        balances[dst] = add96(balances[dst], amount, 'Hum::_transferTokens: transfer amount overflows');
         emit Transfer(src, dst, amount);
     }
 

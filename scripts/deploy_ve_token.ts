@@ -2,7 +2,7 @@ import { ethers, getNamedAccounts, upgrades } from 'hardhat'
 
 async function main() {
   const { TOKEN, STAKING } = await getNamedAccounts()
-  const VoteEscrowTokenFactory = await ethers.getContractFactory('VePtp')
+  const VoteEscrowTokenFactory = await ethers.getContractFactory('VeHum')
   console.log('Deploying Vote Escrow Token...')
   const voteEscrowToken = await upgrades.deployProxy(
     VoteEscrowTokenFactory,

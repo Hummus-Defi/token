@@ -12,24 +12,24 @@ import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import './libraries/Math.sol';
-import './interfaces/IVePtp.sol';
-import './interfaces/IPtp.sol';
-import './interfaces/IMasterPlatypus.sol';
+import './interfaces/IVeHum.sol';
+import './interfaces/IHum.sol';
+import './interfaces/IMasterHummus.sol';
 import './interfaces/IRewarder.sol';
 
-/// MasterPlatypus is a boss. He says "go f your blocks maki boy, I'm gonna use timestamp instead"
-/// In addition, he feeds himself from Venom. So, vePtp holders boost their (non-dialuting) emissions.
+/// MasterHummus is a boss. He says "go f your blocks maki boy, I'm gonna use timestamp instead"
+/// In addition, he feeds himself from Venom. So, veHum holders boost their (non-dialuting) emissions.
 /// This contract rewards users in function of their amount of lp staked (dialuting pool) factor (non-dialuting pool)
-/// Factor and sumOfFactors are updated by contract VePtp.sol after any vePtp minting/burning (veERC20Upgradeable hook).
+/// Factor and sumOfFactors are updated by contract VeHum.sol after any veHum minting/burning (veERC20Upgradeable hook).
 /// Note that it's ownable and the owner wields tremendous power. The ownership
-/// will be transferred to a governance smart contract once Platypus is sufficiently
+/// will be transferred to a governance smart contract once Hummus is sufficiently
 /// distributed and the community can show to govern itself.
-contract MasterPlatypus is
+contract MasterHummus is
     Initializable,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
-    IMasterPlatypus
+    IMasterHummus
 {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -38,16 +38,16 @@ contract MasterPlatypus is
     struct UserInfo {
         uint256 amount; // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
-        uint256 factor; // non-dialuting factor = sqrt (lpAmount * vePtp.balanceOf())
+        uint256 factor; // non-dialuting factor = sqrt (lpAmount * veHum.balanceOf())
         //
-        // We do some fancy math here. Basically, any point in time, the amount of PTPs
+        // We do some fancy math here. Basically, any point in time, the amount of HUMs
         // entitled to a user but is pending to be distributed is:
         //
-        //   ((user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12) -
+        //   ((user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12) -
         //        user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accPtpPerShare`, `accPtpPerFactorShare` (and `lastRewardTimestamp`) gets updated.
+        //   1. The pool's `accHumPerShare`, `accHumPerFactorShare` (and `lastRewardTimestamp`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -56,22 +56,22 @@ contract MasterPlatypus is
     // Info of each pool.
     struct PoolInfo {
         IERC20 lpToken; // Address of LP token contract.
-        uint256 allocPoint; // How many allocation points assigned to this pool. PTPs to distribute per second.
-        uint256 lastRewardTimestamp; // Last timestamp that PTPs distribution occurs.
-        uint256 accPtpPerShare; // Accumulated PTPs per share, times 1e12.
+        uint256 allocPoint; // How many allocation points assigned to this pool. HUMs to distribute per second.
+        uint256 lastRewardTimestamp; // Last timestamp that HUMs distribution occurs.
+        uint256 accHumPerShare; // Accumulated HUMs per share, times 1e12.
         IRewarder rewarder;
         uint256 sumOfFactors; // the sum of all non dialuting factors by all of the users in the pool
-        uint256 accPtpPerFactorShare; // accumulated ptp per factor share
+        uint256 accHumPerFactorShare; // accumulated hum per factor share
     }
 
-    // The strongest platypus out there (ptp token).
-    IERC20 public ptp;
-    // Venom does not seem to hurt the Platypus, it only makes it stronger.
-    IVePtp public vePtp;
-    // New Master Platypus address for future migrations
-    IMasterPlatypus newMasterPlatypus;
-    // PTP tokens created per second.
-    uint256 public ptpPerSec;
+    // The strongest hummus out there (hum token).
+    IERC20 public hum;
+    // Venom does not seem to hurt the Hummus, it only makes it stronger.
+    IVeHum public veHum;
+    // New Master Hummus address for future migrations
+    IMasterHummus newMasterHummus;
+    // HUM tokens created per second.
+    uint256 public humPerSec;
     // Emissions: both must add to 1000 => 100%
     // Dialuting emissions repartition (e.g. 300 for 30%)
     uint256 public dialutingRepartition;
@@ -79,7 +79,7 @@ contract MasterPlatypus is
     uint256 public nonDialutingRepartition;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint;
-    // The timestamp when PTP mining starts.
+    // The timestamp when HUM mining starts.
     uint256 public startTimestamp;
     // Info of each pool.
     PoolInfo[] public poolInfo;
@@ -87,50 +87,50 @@ contract MasterPlatypus is
     EnumerableSet.AddressSet private lpTokens;
     // Info of each user that stakes LP tokens.
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
-    // Amount of claimable ptp the user has
-    mapping(uint256 => mapping(address => uint256)) public claimablePtp;
+    // Amount of claimable hum the user has
+    mapping(uint256 => mapping(address => uint256)) public claimableHum;
 
     event Add(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken, IRewarder indexed rewarder);
     event Set(uint256 indexed pid, uint256 allocPoint, IRewarder indexed rewarder, bool overwrite);
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event DepositFor(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
-    event UpdatePool(uint256 indexed pid, uint256 lastRewardTimestamp, uint256 lpSupply, uint256 accPtpPerShare);
+    event UpdatePool(uint256 indexed pid, uint256 lastRewardTimestamp, uint256 lpSupply, uint256 accHumPerShare);
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
-    event UpdateEmissionRate(address indexed user, uint256 ptpPerSec);
+    event UpdateEmissionRate(address indexed user, uint256 humPerSec);
     event UpdateEmissionRepartition(
         address indexed user,
         uint256 dialutingRepartition,
         uint256 nonDialutingRepartition
     );
-    event UpdateVePTP(address indexed user, address oldVePTP, address newVePTP);
+    event UpdateVeHUM(address indexed user, address oldVeHUM, address newVeHUM);
 
-    /// @dev Modifier ensuring that certain function can only be called by VePtp
-    modifier onlyVePtp() {
-        require(address(vePtp) == msg.sender, 'notVePtp: wut?');
+    /// @dev Modifier ensuring that certain function can only be called by VeHum
+    modifier onlyVeHum() {
+        require(address(veHum) == msg.sender, 'notVeHum: wut?');
         _;
     }
 
     function initialize(
-        IERC20 _ptp,
-        IVePtp _vePtp,
-        uint256 _ptpPerSec,
+        IERC20 _hum,
+        IVeHum _veHum,
+        uint256 _humPerSec,
         uint256 _dialutingRepartition,
         uint256 _startTimestamp
     ) external initializer {
-        require(address(_ptp) != address(0), 'ptp address cannot be zero');
-        require(address(_vePtp) != address(0), 'vePtp address cannot be zero');
-        require(_ptpPerSec != 0, 'ptp per sec cannot be zero');
+        require(address(_hum) != address(0), 'hum address cannot be zero');
+        require(address(_veHum) != address(0), 'veHum address cannot be zero');
+        require(_humPerSec != 0, 'hum per sec cannot be zero');
         require(_dialutingRepartition <= 1000, 'dialuting repartition must be in range 0, 1000');
 
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
-        ptp = _ptp;
-        vePtp = _vePtp;
-        ptpPerSec = _ptpPerSec;
+        hum = _hum;
+        veHum = _veHum;
+        humPerSec = _humPerSec;
         dialutingRepartition = _dialutingRepartition;
         nonDialutingRepartition = 1000 - _dialutingRepartition;
         startTimestamp = _startTimestamp;
@@ -151,8 +151,8 @@ contract MasterPlatypus is
         _unpause();
     }
 
-    function setNewMasterPlatypus(IMasterPlatypus _newMasterPlatypus) external onlyOwner {
-        newMasterPlatypus = _newMasterPlatypus;
+    function setNewMasterHummus(IMasterHummus _newMasterHummus) external onlyOwner {
+        newMasterHummus = _newMasterHummus;
     }
 
     /// @notice returns pool length
@@ -192,10 +192,10 @@ contract MasterPlatypus is
                 lpToken: _lpToken,
                 allocPoint: _allocPoint,
                 lastRewardTimestamp: lastRewardTimestamp,
-                accPtpPerShare: 0,
+                accHumPerShare: 0,
                 rewarder: _rewarder,
                 sumOfFactors: 0,
-                accPtpPerFactorShare: 0
+                accHumPerFactorShare: 0
             })
         );
 
@@ -204,7 +204,7 @@ contract MasterPlatypus is
         emit Add(poolInfo.length - 1, _allocPoint, _lpToken, _rewarder);
     }
 
-    /// @notice Update the given pool's PTP allocation point. Can only be called by the owner.
+    /// @notice Update the given pool's HUM allocation point. Can only be called by the owner.
     /// @param _pid the pool id
     /// @param _allocPoint allocation points
     /// @param _rewarder the rewarder
@@ -228,7 +228,7 @@ contract MasterPlatypus is
         emit Set(_pid, _allocPoint, overwrite ? _rewarder : poolInfo[_pid].rewarder, overwrite);
     }
 
-    /// @notice View function to see pending PTPs on frontend.
+    /// @notice View function to see pending HUMs on frontend.
     /// @param _pid the pool id
     /// @param _user the user address
     /// TODO include factor operations
@@ -237,7 +237,7 @@ contract MasterPlatypus is
         view
         override
         returns (
-            uint256 pendingPtp,
+            uint256 pendingHum,
             address bonusTokenAddress,
             string memory bonusTokenSymbol,
             uint256 pendingBonusToken
@@ -245,20 +245,20 @@ contract MasterPlatypus is
     {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accPtpPerShare = pool.accPtpPerShare;
-        uint256 accPtpPerFactorShare = pool.accPtpPerFactorShare;
+        uint256 accHumPerShare = pool.accHumPerShare;
+        uint256 accHumPerFactorShare = pool.accHumPerFactorShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.timestamp > pool.lastRewardTimestamp && lpSupply != 0) {
             uint256 secondsElapsed = block.timestamp - pool.lastRewardTimestamp;
-            uint256 ptpReward = (secondsElapsed * ptpPerSec * pool.allocPoint) / totalAllocPoint;
-            accPtpPerShare += (ptpReward * 1e12 * dialutingRepartition) / (lpSupply * 1000);
+            uint256 humReward = (secondsElapsed * humPerSec * pool.allocPoint) / totalAllocPoint;
+            accHumPerShare += (humReward * 1e12 * dialutingRepartition) / (lpSupply * 1000);
             if (pool.sumOfFactors != 0) {
-                accPtpPerFactorShare += (ptpReward * 1e12 * nonDialutingRepartition) / (pool.sumOfFactors * 1000);
+                accHumPerFactorShare += (humReward * 1e12 * nonDialutingRepartition) / (pool.sumOfFactors * 1000);
             }
         }
-        pendingPtp =
-            ((user.amount * accPtpPerShare + user.factor * accPtpPerFactorShare) / 1e12) +
-            claimablePtp[_pid][_user] -
+        pendingHum =
+            ((user.amount * accHumPerShare + user.factor * accHumPerFactorShare) / 1e12) +
+            claimableHum[_pid][_user] -
             user.rewardDebt;
         // If it's a double reward farm, we return info about the bonus token
         if (address(pool.rewarder) != address(0)) {
@@ -311,31 +311,31 @@ contract MasterPlatypus is
             // calculate seconds elapsed since last update
             uint256 secondsElapsed = block.timestamp - pool.lastRewardTimestamp;
 
-            // calculate ptp reward
-            uint256 ptpReward = (secondsElapsed * ptpPerSec * pool.allocPoint) / totalAllocPoint;
+            // calculate hum reward
+            uint256 humReward = (secondsElapsed * humPerSec * pool.allocPoint) / totalAllocPoint;
 
-            // update accPtpPerShare to reflect dialuting rewards
-            pool.accPtpPerShare += (ptpReward * 1e12 * dialutingRepartition) / (lpSupply * 1000);
+            // update accHumPerShare to reflect dialuting rewards
+            pool.accHumPerShare += (humReward * 1e12 * dialutingRepartition) / (lpSupply * 1000);
 
-            // update accPtpPerFactorShare to reflect non-dialuting rewards
+            // update accHumPerFactorShare to reflect non-dialuting rewards
             if (pool.sumOfFactors == 0) {
-                pool.accPtpPerFactorShare = 0;
+                pool.accHumPerFactorShare = 0;
             } else {
-                pool.accPtpPerFactorShare += (ptpReward * 1e12 * nonDialutingRepartition) / (pool.sumOfFactors * 1000);
+                pool.accHumPerFactorShare += (humReward * 1e12 * nonDialutingRepartition) / (pool.sumOfFactors * 1000);
             }
 
             // update lastRewardTimestamp to now
             pool.lastRewardTimestamp = block.timestamp;
-            emit UpdatePool(_pid, pool.lastRewardTimestamp, lpSupply, pool.accPtpPerShare);
+            emit UpdatePool(_pid, pool.lastRewardTimestamp, lpSupply, pool.accHumPerShare);
         }
     }
 
-    /// @notice Helper function to migrate fund from multiple pools to the new MasterPlatypus.
+    /// @notice Helper function to migrate fund from multiple pools to the new MasterHummus.
     /// @notice user must initiate transaction from masterchef
-    /// @dev Assume the orginal MasterPlatypus has stopped emisions
+    /// @dev Assume the orginal MasterHummus has stopped emisions
     /// hence we can skip updatePool() to save gas cost
     function migrate(uint256[] calldata _pids) external override nonReentrant {
-        require(address(newMasterPlatypus) != (address(0)), 'to where?');
+        require(address(newMasterHummus) != (address(0)), 'to where?');
 
         _multiClaim(_pids);
         for (uint256 i = 0; i < _pids.length; ++i) {
@@ -344,17 +344,17 @@ contract MasterPlatypus is
 
             if (user.amount > 0) {
                 PoolInfo storage pool = poolInfo[pid];
-                pool.lpToken.approve(address(newMasterPlatypus), user.amount);
-                newMasterPlatypus.depositFor(pid, user.amount, msg.sender);
+                pool.lpToken.approve(address(newMasterHummus), user.amount);
+                newMasterHummus.depositFor(pid, user.amount, msg.sender);
 
                 user.amount = 0;
-                // As we assume the MasterPlatypus has stopped emission so that we can skip updating
+                // As we assume the MasterHummus has stopped emission so that we can skip updating
                 // user.factor and pool.sumOfFactors
             }
         }
     }
 
-    /// @notice Deposit LP tokens to MasterChef for PTP allocation on behalf of user
+    /// @notice Deposit LP tokens to MasterChef for HUM allocation on behalf of user
     /// @dev user must initiate transaction from masterchef
     /// @param _pid the pool id
     /// @param _amount amount to deposit
@@ -372,13 +372,13 @@ contract MasterPlatypus is
         // update pool in case user has deposited
         _updatePool(_pid);
         if (user.amount > 0) {
-            // Harvest PTP
-            uint256 pending = ((user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12) +
-                claimablePtp[_pid][msg.sender] -
+            // Harvest HUM
+            uint256 pending = ((user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12) +
+                claimableHum[_pid][msg.sender] -
                 user.rewardDebt;
-            claimablePtp[_pid][msg.sender] = 0;
+            claimableHum[_pid][msg.sender] = 0;
 
-            pending = safePtpTransfer(payable(_user), pending);
+            pending = safeHumTransfer(payable(_user), pending);
             emit Harvest(_user, _pid, pending);
         }
 
@@ -387,22 +387,22 @@ contract MasterPlatypus is
 
         // update non-dialuting factor
         uint256 oldFactor = user.factor;
-        user.factor = Math.sqrt(user.amount * vePtp.balanceOf(_user));
+        user.factor = Math.sqrt(user.amount * veHum.balanceOf(_user));
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = (user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12;
+        user.rewardDebt = (user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12;
 
         IRewarder rewarder = poolInfo[_pid].rewarder;
         if (address(rewarder) != address(0)) {
-            rewarder.onPtpReward(_user, user.amount);
+            rewarder.onHumReward(_user, user.amount);
         }
 
         pool.lpToken.safeTransferFrom(msg.sender, address(this), _amount);
         emit DepositFor(_user, _pid, _amount);
     }
 
-    /// @notice Deposit LP tokens to MasterChef for PTP allocation.
+    /// @notice Deposit LP tokens to MasterChef for HUM allocation.
     /// @dev it is possible to call this function with _amount == 0 to claim current rewards
     /// @param _pid the pool id
     /// @param _amount amount to deposit
@@ -418,14 +418,14 @@ contract MasterPlatypus is
         _updatePool(_pid);
         uint256 pending;
         if (user.amount > 0) {
-            // Harvest PTP
+            // Harvest HUM
             pending =
-                ((user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12) +
-                claimablePtp[_pid][msg.sender] -
+                ((user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12) +
+                claimableHum[_pid][msg.sender] -
                 user.rewardDebt;
-            claimablePtp[_pid][msg.sender] = 0;
+            claimableHum[_pid][msg.sender] = 0;
 
-            pending = safePtpTransfer(payable(msg.sender), pending);
+            pending = safeHumTransfer(payable(msg.sender), pending);
             emit Harvest(msg.sender, _pid, pending);
         }
 
@@ -434,16 +434,16 @@ contract MasterPlatypus is
 
         // update non-dialuting factor
         uint256 oldFactor = user.factor;
-        user.factor = Math.sqrt(user.amount * vePtp.balanceOf(msg.sender));
+        user.factor = Math.sqrt(user.amount * veHum.balanceOf(msg.sender));
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = (user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12;
+        user.rewardDebt = (user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12;
 
         IRewarder rewarder = poolInfo[_pid].rewarder;
         uint256 additionalRewards;
         if (address(rewarder) != address(0)) {
-            additionalRewards = rewarder.onPtpReward(msg.sender, user.amount);
+            additionalRewards = rewarder.onHumReward(msg.sender, user.amount);
         }
 
         pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
@@ -487,15 +487,15 @@ contract MasterPlatypus is
             UserInfo storage user = userInfo[_pids[i]][msg.sender];
             if (user.amount > 0) {
                 // increase pending to send all rewards once
-                uint256 poolRewards = ((user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) /
+                uint256 poolRewards = ((user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) /
                     1e12) +
-                    claimablePtp[_pids[i]][msg.sender] -
+                    claimableHum[_pids[i]][msg.sender] -
                     user.rewardDebt;
 
-                claimablePtp[_pids[i]][msg.sender] = 0;
+                claimableHum[_pids[i]][msg.sender] = 0;
 
                 // update reward debt
-                user.rewardDebt = (user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12;
+                user.rewardDebt = (user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12;
 
                 // increase pending
                 pending += poolRewards;
@@ -504,12 +504,12 @@ contract MasterPlatypus is
                 // if existant, get external rewarder rewards for pool
                 IRewarder rewarder = pool.rewarder;
                 if (address(rewarder) != address(0)) {
-                    additionalRewards[i] = rewarder.onPtpReward(msg.sender, user.amount);
+                    additionalRewards[i] = rewarder.onHumReward(msg.sender, user.amount);
                 }
             }
         }
         // transfer all remaining rewards
-        uint256 transfered = safePtpTransfer(payable(msg.sender), pending);
+        uint256 transfered = safeHumTransfer(payable(msg.sender), pending);
         if (transfered != pending) {
             for (uint256 i = 0; i < _pids.length; ++i) {
                 amounts[i] = (transfered * amounts[i]) / pending;
@@ -525,7 +525,7 @@ contract MasterPlatypus is
         return (transfered, amounts, additionalRewards);
     }
 
-    /// @notice Withdraw LP tokens from MasterPlatypus.
+    /// @notice Withdraw LP tokens from MasterHummus.
     /// @notice Automatically harvest pending rewards and sends to user
     /// @param _pid the pool id
     /// @param _amount the amount to withdraw
@@ -542,13 +542,13 @@ contract MasterPlatypus is
 
         _updatePool(_pid);
 
-        // Harvest PTP
-        uint256 pending = ((user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12) +
-            claimablePtp[_pid][msg.sender] -
+        // Harvest HUM
+        uint256 pending = ((user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12) +
+            claimableHum[_pid][msg.sender] -
             user.rewardDebt;
-        claimablePtp[_pid][msg.sender] = 0;
+        claimableHum[_pid][msg.sender] = 0;
 
-        pending = safePtpTransfer(payable(msg.sender), pending);
+        pending = safeHumTransfer(payable(msg.sender), pending);
         emit Harvest(msg.sender, _pid, pending);
 
         // for non-dialuting factor
@@ -558,16 +558,16 @@ contract MasterPlatypus is
         user.amount = user.amount - _amount;
 
         // update non-dialuting factor
-        user.factor = Math.sqrt(user.amount * vePtp.balanceOf(msg.sender));
+        user.factor = Math.sqrt(user.amount * veHum.balanceOf(msg.sender));
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = (user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12;
+        user.rewardDebt = (user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12;
 
         IRewarder rewarder = poolInfo[_pid].rewarder;
         uint256 additionalRewards = 0;
         if (address(rewarder) != address(0)) {
-            additionalRewards = rewarder.onPtpReward(msg.sender, user.amount);
+            additionalRewards = rewarder.onHumReward(msg.sender, user.amount);
         }
 
         pool.lpToken.safeTransfer(address(msg.sender), _amount);
@@ -593,33 +593,33 @@ contract MasterPlatypus is
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
     }
 
-    /// @notice Safe ptp transfer function, just in case if rounding error causes pool to not have enough PTPs.
+    /// @notice Safe hum transfer function, just in case if rounding error causes pool to not have enough HUMs.
     /// @param _to beneficiary
     /// @param _amount the amount to transfer
-    function safePtpTransfer(address payable _to, uint256 _amount) private returns (uint256) {
-        uint256 ptpBal = ptp.balanceOf(address(this));
+    function safeHumTransfer(address payable _to, uint256 _amount) private returns (uint256) {
+        uint256 humBal = hum.balanceOf(address(this));
 
-        // perform additional check in case there are no more ptp tokens to distribute.
+        // perform additional check in case there are no more hum tokens to distribute.
         // emergency withdraw would be necessary
-        require(ptpBal > 0, 'No tokens to distribute');
+        require(humBal > 0, 'No tokens to distribute');
 
-        if (_amount > ptpBal) {
-            ptp.transfer(_to, ptpBal);
-            return ptpBal;
+        if (_amount > humBal) {
+            hum.transfer(_to, humBal);
+            return humBal;
         } else {
-            ptp.transfer(_to, _amount);
+            hum.transfer(_to, _amount);
             return _amount;
         }
     }
 
     /// @notice updates emission rate
-    /// @param _ptpPerSec ptp amount to be updated
+    /// @param _humPerSec hum amount to be updated
     /// @dev Pancake has to add hidden dummy pools inorder to alter the emission,
     /// @dev here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _ptpPerSec) external onlyOwner {
+    function updateEmissionRate(uint256 _humPerSec) external onlyOwner {
         massUpdatePools();
-        ptpPerSec = _ptpPerSec;
-        emit UpdateEmissionRate(msg.sender, _ptpPerSec);
+        humPerSec = _humPerSec;
+        emit UpdateEmissionRate(msg.sender, _humPerSec);
     }
 
     /// @notice updates emission repartition
@@ -632,21 +632,21 @@ contract MasterPlatypus is
         emit UpdateEmissionRepartition(msg.sender, _dialutingRepartition, 1000 - _dialutingRepartition);
     }
 
-    /// @notice updates vePtp address
-    /// @param _newVePtp the new VePtp address
-    function setVePtp(IVePtp _newVePtp) external onlyOwner {
-        require(address(_newVePtp) != address(0));
+    /// @notice updates veHum address
+    /// @param _newVeHum the new VeHum address
+    function setVeHum(IVeHum _newVeHum) external onlyOwner {
+        require(address(_newVeHum) != address(0));
         massUpdatePools();
-        IVePtp oldVePtp = vePtp;
-        vePtp = _newVePtp;
-        emit UpdateVePTP(msg.sender, address(oldVePtp), address(_newVePtp));
+        IVeHum oldVeHum = veHum;
+        veHum = _newVeHum;
+        emit UpdateVeHUM(msg.sender, address(oldVeHum), address(_newVeHum));
     }
 
-    /// @notice updates factor after any vePtp token operation (minting/burning)
+    /// @notice updates factor after any veHum token operation (minting/burning)
     /// @param _user the user to update
-    /// @param _newVePtpBalance the amount of vePTP
-    /// @dev can only be called by vePtp
-    function updateFactor(address _user, uint256 _newVePtpBalance) external override onlyVePtp {
+    /// @param _newVeHumBalance the amount of veHUM
+    /// @dev can only be called by veHum
+    function updateFactor(address _user, uint256 _newVeHumBalance) external override onlyVeHum {
         // loop over each pool : beware gas cost!
         uint256 length = poolInfo.length;
 
@@ -663,26 +663,26 @@ contract MasterPlatypus is
             // first, update pool
             _updatePool(pid);
             // calculate pending
-            uint256 pending = ((user.amount * pool.accPtpPerShare + user.factor * pool.accPtpPerFactorShare) / 1e12) -
+            uint256 pending = ((user.amount * pool.accHumPerShare + user.factor * pool.accHumPerFactorShare) / 1e12) -
                 user.rewardDebt;
-            // increase claimablePtp
-            claimablePtp[pid][_user] += pending;
+            // increase claimableHum
+            claimableHum[pid][_user] += pending;
             // get oldFactor
             uint256 oldFactor = user.factor; // get old factor
             // calculate newFactor using
-            uint256 newFactor = Math.sqrt(_newVePtpBalance * user.amount);
+            uint256 newFactor = Math.sqrt(_newVeHumBalance * user.amount);
             // update user factor
             user.factor = newFactor;
             // update reward debt, take into account newFactor
-            user.rewardDebt = (user.amount * pool.accPtpPerShare + newFactor * pool.accPtpPerFactorShare) / 1e12;
+            user.rewardDebt = (user.amount * pool.accHumPerShare + newFactor * pool.accHumPerFactorShare) / 1e12;
             // also, update sumOfFactors
             pool.sumOfFactors = pool.sumOfFactors + newFactor - oldFactor;
         }
     }
 
-    /// @notice In case we need to manually migrate PTP funds from MasterChef
-    /// Sends all remaining ptp from the contract to the owner
-    function emergencyPtpWithdraw() external onlyOwner {
-        ptp.safeTransfer(address(msg.sender), ptp.balanceOf(address(this)));
+    /// @notice In case we need to manually migrate HUM funds from MasterChef
+    /// Sends all remaining hum from the contract to the owner
+    function emergencyHumWithdraw() external onlyOwner {
+        hum.safeTransfer(address(msg.sender), hum.balanceOf(address(this)));
     }
 }

@@ -6,9 +6,9 @@ import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 import './IVeERC20.sol';
 
 /**
- * @dev Interface of the VePtp
+ * @dev Interface of the VeHum
  */
-interface IVePtp is IVeERC20, IERC721Receiver {
+interface IVeHum is IVeERC20, IERC721Receiver {
     function isUser(address _addr) external view returns (bool);
 
     function deposit(uint256 _amount) external;
@@ -21,7 +21,7 @@ interface IVePtp is IVeERC20, IERC721Receiver {
 
     function getStakedNft(address _addr) external view returns (uint256);
 
-    function getStakedPtp(address _addr) external view returns (uint256);
+    function getStakedHum(address _addr) external view returns (uint256);
 
     function getVotes(address _account) external view returns (uint256);
 }

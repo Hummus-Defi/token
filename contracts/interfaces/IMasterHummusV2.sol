@@ -3,16 +3,16 @@
 pragma solidity 0.8.9;
 
 /**
- * @dev Interface of the MasterPlatypus
+ * @dev Interface of the MasterHummusV2
  */
-interface IMasterPlatypus {
+interface IMasterHummusV2 {
     function poolLength() external view returns (uint256);
 
     function pendingTokens(uint256 _pid, address _user)
         external
         view
         returns (
-            uint256 pendingPtp,
+            uint256 pendingHum,
             address bonusTokenAddress,
             string memory bonusTokenSymbol,
             uint256 pendingBonusToken
@@ -26,6 +26,8 @@ interface IMasterPlatypus {
     function massUpdatePools() external;
 
     function updatePool(uint256 _pid) external;
+
+    function poolAdjustFactor(uint256 pid) external view returns (uint256);
 
     function deposit(uint256 _pid, uint256 _amount) external returns (uint256, uint256);
 
@@ -49,5 +51,5 @@ interface IMasterPlatypus {
         address _user
     ) external;
 
-    function updateFactor(address _user, uint256 _newVePtpBalance) external;
+    function updateFactor(address _user, uint256 _newVeHumBalance) external;
 }

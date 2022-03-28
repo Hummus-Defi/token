@@ -1,7 +1,7 @@
 import { ethers, upgrades } from 'hardhat'
 
 async function main() {
-  const StakingFactory = await ethers.getContractFactory('MasterPlatypus')
+  const StakingFactory = await ethers.getContractFactory('MasterHummus')
   console.log('Deploying Staking (No Initialization)')
   const staking = await upgrades.deployProxy(StakingFactory, [], {
     initializer: false,
