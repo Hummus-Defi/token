@@ -18,7 +18,7 @@ import './interfaces/IMasterHummusV2.sol';
 import './interfaces/IRewarder.sol';
 
 /// MasterHummus is a boss. He says "go f your blocks maki boy, I'm gonna use timestamp instead"
-/// In addition, he feeds himself from Venom. So, veHum holders boost their (non-dialuting) emissions.
+/// In addition, he feeds himself from Vote-Escrowed Hummus. So, veHum holders boost their (non-dialuting) emissions.
 /// This contract rewards users in function of their amount of lp staked (dialuting pool) factor (non-dialuting pool)
 /// Factor and sumOfFactors are updated by contract VeHum.sol after any veHum minting/burning (veERC20Upgradeable hook).
 /// Note that it's ownable and the owner wields tremendous power. The ownership
@@ -69,7 +69,7 @@ contract MasterHummusV2 is
 
     // The strongest hummus out there (hum token).
     IERC20 public hum;
-    // Venom does not seem to hurt the Hummus, it only makes it stronger.
+    // The strongest vote-escrowed hummus out there (veHum token)
     IVeHum public veHum;
     // New Master Hummus address for future migrations
     IMasterHummusV2 public newMasterHummus;

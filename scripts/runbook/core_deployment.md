@@ -20,10 +20,10 @@ Deploy Staking w/o initialization. Set `STAKING` variable address in `hardhat.co
 npx hardhat run scripts/deploy_staking.ts
 ```
 
-Deploy and initialize Vote Escrow Token. Set `VE_TOKEN` variable address in `hardhat.config.ts`.
+Deploy and initialize Vote Escrow Token. Set `ESCROW` variable address in `hardhat.config.ts`.
 
 ```
-npx hardhat run scripts/deploy_ve_token.ts
+npx hardhat run scripts/deploy_escrow.ts
 ```
 
 Initialize Staking

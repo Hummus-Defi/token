@@ -3,7 +3,8 @@ import 'dotenv/config'
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-solhint'
-import '@nomiclabs/hardhat-etherscan'
+// import '@nomiclabs/hardhat-etherscan'
+import 'metis-sourcecode-verify'
 import '@typechain/hardhat'
 import '@openzeppelin/hardhat-upgrades'
 import 'solidity-coverage'
@@ -80,16 +81,23 @@ const config: HardhatUserConfig = {
     // contracts
 
     STAKING: {
+      // MasterHummusV2
       42: '0x765099591EA91DFAb032dD12cBFbe5976319FdF4',
+      588: '0x7264E936AFE0841EcA8B5c502E677cA24E0bc79b',
     },
     TOKEN: {
+      // Hum
       42: '0xe8Eb8149ac20d75C5fAE054FE5C3A9688aCa8c67',
+      588: '0x8b2AF921F3eaef0d9D6a47B65E1F7F83bEfB2f1f',
     },
-    VE_TOKEN: {
+    ESCROW: {
+      // veHum
       42: '0x955514d7e1DB34BB612c7a0Bbd63D25eA02dD29A',
+      588: '0xd5A0760D55ad46B6A1C46D28725e4C117312a7aD',
     },
     WHITELIST: {
       42: '0x927BADD28b3AF1156e9cCAb2F0FA3AFb13af8b65',
+      588: '0x3878edF8E00fD8e29812A9379303F539ea012C5F',
     },
 
     // lp assets
@@ -112,7 +120,10 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     // API key for snowtrace.io
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      metisAndromeda: 'api-key',
+      metisStardust: 'api-key',
+    },
   },
 }
 

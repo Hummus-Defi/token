@@ -16,8 +16,7 @@ import './interfaces/IVeHum.sol';
 import './interfaces/IHummusNFT.sol';
 
 /// @title VeHum
-/// @notice Hummus Venom: the staking contract for HUM, as well as the token used for governance.
-/// Note Venom does not seem to hurt the Hummus, it only makes it stronger.
+/// @notice Vote-Escrowed Hummus: the staking contract for HUM, as well as the token used for governance.
 /// Allows depositing/withdraw of hum and staking/unstaking ERC721.
 /// Here are the rules of the game:
 /// If you stake hum, you generate veHum at the current `generationRate` until you reach `maxCap`
@@ -97,7 +96,7 @@ contract VeHum is
         require(address(_hum) != address(0), 'zero address');
 
         // Initialize veHUM
-        __ERC20_init('Hummus Venom', 'veHUM');
+        __ERC20_init('Vote-Escrowed Hummus', 'veHUM');
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
