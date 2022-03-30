@@ -5,27 +5,27 @@
     "txHash": "0xd134e5ab948307b2dd4e86fbf77c8bf711c161e7463ae7ea14f1679e9a555fb5"
   },
   "proxies": [
-      {
+    {
       "address": "0xFE0401CeCBfDA864cAE84F8e716B71e32eD405aE",
       "txHash": "0x1fb02102ed200a25151405ec9bded194575f89b793005a94d012dcd3d1612983",
       "kind": "transparent"
     },
-      {
+    {
       "address": "0x26083dD68999f46B79783DD25Fd2ed094ef7EAe8",
       "txHash": "0x618e49b81939dc9f76af23eba73b90aa8855d3baae7f6e8870cf7483cbf85940",
       "kind": "transparent"
     },
-      {
+    {
       "address": "0x77c0708c4553b5CfD9c18017f222d873EcB0a64F",
       "txHash": "0xb266ebf5bdf9d068ac35cf07b742b0fefe112ecba6a06a192ed0ab7ea5bfb3f1",
       "kind": "transparent"
     },
-      {
+    {
       "address": "0x8Bda454F7a9645Fd9998ba2779a596a375Ea054E",
       "txHash": "0x0513e0de9b87ec72bbb0359803d5875ee836a44975441eb6ba484d1a4f9d8b70",
       "kind": "transparent"
     },
-      {
+    {
       "address": "0x1BF3c7B140867293F131548222DC1B5dD0baEd2B",
       "txHash": "0x7c27941539b2f4df959ec19c7ec0b892d820cd68c03121a0f81a16d6aa739b39",
       "kind": "transparent"
@@ -53,6 +53,16 @@
     {
       "address": "0xd5A0760D55ad46B6A1C46D28725e4C117312a7aD",
       "txHash": "0x1861938e99e5d20baf391eb106d872ed1365f988d7b96db6861611a442ccf2db",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9cadd693cDb2B118F00252Bb3be4C6Df6A74d42C",
+      "txHash": "0x7b9fa0548fe7fd5dad1fb2c58d814f392dc83f93669ba8e9847a54fb6c043e70",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x89351BEAA4AbbA563710864051a8C253E7b3E16d",
+      "txHash": "0x9127f5d4bcb281807e56ebbb49bfd73bd4246b4c1201724b052c28510c283c2c",
       "kind": "transparent"
     }
   ],
@@ -671,6 +681,654 @@
           "t_string_storage": {
             "label": "string",
             "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    },
+    "2ad34e1c9114b1a38a26d6819955cafb3a05000c86b8929e276f0d945b3a05c9": {
+      "address": "0x5A2f94f17D9cB368B9Ec4f583981b5d06FfD9fe4",
+      "txHash": "0x24afe0871ea263e124d2ad44701284bc7df2eae24d6361e59a7e6270a73decb8",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:21"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:26"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:30"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "SafeOwnableUpgradeable",
+            "src": "contracts\\libraries\\SafeOwnableUpgradeable.sol:26"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "SafeOwnableUpgradeable",
+            "src": "contracts\\libraries\\SafeOwnableUpgradeable.sol:93"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:28"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:96"
+          },
+          {
+            "label": "hum",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_contract(IERC20)1116",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:71"
+          },
+          {
+            "label": "veHum",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_contract(IVeHum)10442",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:73"
+          },
+          {
+            "label": "newMasterHummus",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_contract(IMasterHummusV2)10347",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:75"
+          },
+          {
+            "label": "humPerSec",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_uint256",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:77"
+          },
+          {
+            "label": "dialutingRepartition",
+            "offset": 0,
+            "slot": "205",
+            "type": "t_uint256",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:80"
+          },
+          {
+            "label": "nonDialutingRepartition",
+            "offset": 0,
+            "slot": "206",
+            "type": "t_uint256",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:82"
+          },
+          {
+            "label": "totalBaseAllocPoint",
+            "offset": 0,
+            "slot": "207",
+            "type": "t_uint256",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:84"
+          },
+          {
+            "label": "startTimestamp",
+            "offset": 0,
+            "slot": "208",
+            "type": "t_uint256",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:86"
+          },
+          {
+            "label": "poolInfo",
+            "offset": 0,
+            "slot": "209",
+            "type": "t_array(t_struct(PoolInfo)5998_storage)dyn_storage",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:88"
+          },
+          {
+            "label": "lpTokens",
+            "offset": 0,
+            "slot": "210",
+            "type": "t_struct(AddressSet)2485_storage",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:90"
+          },
+          {
+            "label": "userInfo",
+            "offset": 0,
+            "slot": "212",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(UserInfo)5979_storage))",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:92"
+          },
+          {
+            "label": "claimableHum",
+            "offset": 0,
+            "slot": "213",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:94"
+          },
+          {
+            "label": "totalAdjustedAllocPoint",
+            "offset": 0,
+            "slot": "214",
+            "type": "t_uint256",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:96"
+          },
+          {
+            "label": "maxPoolLength",
+            "offset": 0,
+            "slot": "215",
+            "type": "t_uint256",
+            "contract": "MasterHummusV2",
+            "src": "contracts\\MasterHummusV2.sol:98"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(PoolInfo)5998_storage)dyn_storage": {
+            "label": "struct MasterHummusV2.PoolInfo[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IAsset)9795": {
+            "label": "contract IAsset",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IERC20)1116": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IMasterHummusV2)10347": {
+            "label": "contract IMasterHummusV2",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IRewarder)10373": {
+            "label": "contract IRewarder",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IVeHum)10442": {
+            "label": "contract IVeHum",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)5979_storage)": {
+            "label": "mapping(address => struct MasterHummusV2.UserInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(UserInfo)5979_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct MasterHummusV2.UserInfo))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint256 => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)2485_storage": {
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)2184_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(PoolInfo)5998_storage": {
+            "label": "struct MasterHummusV2.PoolInfo",
+            "members": [
+              {
+                "label": "lpToken",
+                "type": "t_contract(IAsset)9795",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "baseAllocPoint",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "lastRewardTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "accHumPerShare",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "rewarder",
+                "type": "t_contract(IRewarder)10373",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "sumOfFactors",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "accHumPerFactorShare",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "adjustedAllocPoint",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(Set)2184_storage": {
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(UserInfo)5979_storage": {
+            "label": "struct MasterHummusV2.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "factor",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    },
+    "788ba89ad3fdb4bdb54b5a6bd3204c03c1ff449fcbae2c04e33645bf1507a3ae": {
+      "address": "0xb999a120CBB6a6e01Ae8e5fAdBebD2014731F8D8",
+      "txHash": "0x6803936b337284b0b2ac8e88286650629e4cd063b153ce41f4664def3c156cd0",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:21"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:26"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:30"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:21"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:77"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:28"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:96"
+          },
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VeERC20Upgradeable",
+            "src": "contracts\\VeERC20Upgradeable.sol:13"
+          },
+          {
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "VeERC20Upgradeable",
+            "src": "contracts\\VeERC20Upgradeable.sol:15"
+          },
+          {
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_uint256",
+            "contract": "VeERC20Upgradeable",
+            "src": "contracts\\VeERC20Upgradeable.sol:17"
+          },
+          {
+            "label": "_name",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_string_storage",
+            "contract": "VeERC20Upgradeable",
+            "src": "contracts\\VeERC20Upgradeable.sol:19"
+          },
+          {
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "205",
+            "type": "t_string_storage",
+            "contract": "VeERC20Upgradeable",
+            "src": "contracts\\VeERC20Upgradeable.sol:20"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "206",
+            "type": "t_array(t_uint256)45_storage",
+            "contract": "VeERC20Upgradeable",
+            "src": "contracts\\VeERC20Upgradeable.sol:168"
+          },
+          {
+            "label": "hum",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_contract(IERC20)1116",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:47"
+          },
+          {
+            "label": "masterHummus",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_contract(IMasterHummus)10236",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:50"
+          },
+          {
+            "label": "nft",
+            "offset": 0,
+            "slot": "253",
+            "type": "t_contract(IHummusNFT)10132",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:53"
+          },
+          {
+            "label": "maxCap",
+            "offset": 0,
+            "slot": "254",
+            "type": "t_uint256",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:61"
+          },
+          {
+            "label": "generationRate",
+            "offset": 0,
+            "slot": "255",
+            "type": "t_uint256",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:64"
+          },
+          {
+            "label": "invVoteThreshold",
+            "offset": 0,
+            "slot": "256",
+            "type": "t_uint256",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:72"
+          },
+          {
+            "label": "whitelist",
+            "offset": 0,
+            "slot": "257",
+            "type": "t_contract(Whitelist)9778",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:76"
+          },
+          {
+            "label": "users",
+            "offset": 0,
+            "slot": "258",
+            "type": "t_mapping(t_address,t_struct(UserInfo)8788_storage)",
+            "contract": "VeHum",
+            "src": "contracts\\VeHum.sol:79"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)45_storage": {
+            "label": "uint256[45]",
+            "numberOfBytes": "1440"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)1116": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IHummusNFT)10132": {
+            "label": "contract IHummusNFT",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IMasterHummus)10236": {
+            "label": "contract IMasterHummus",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Whitelist)9778": {
+            "label": "contract Whitelist",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)8788_storage)": {
+            "label": "mapping(address => struct VeHum.UserInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(UserInfo)8788_storage": {
+            "label": "struct VeHum.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "lastRelease",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "stakedNftId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
           },
           "t_uint256": {
             "label": "uint256",
