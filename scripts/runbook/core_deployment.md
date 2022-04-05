@@ -26,6 +26,8 @@ Deploy and initialize Vote Escrow Token. Set `ESCROW` variable address in `hardh
 npx hardhat run scripts/deploy_escrow.ts
 ```
 
+## Staking Setup
+
 Initialize Staking
 
 ```

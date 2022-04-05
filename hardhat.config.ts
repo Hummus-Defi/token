@@ -87,7 +87,7 @@ const config: HardhatUserConfig = {
     STAKING: {
       // MasterHummusV2
       42: '0x765099591EA91DFAb032dD12cBFbe5976319FdF4',
-      588: '0x7264E936AFE0841EcA8B5c502E677cA24E0bc79b',
+      588: '0x838b73a945cF42e07f316a9d0a5715e8B5B973c9',
       1088: '0x9cadd693cDb2B118F00252Bb3be4C6Df6A74d42C',
     },
     TOKEN: {
