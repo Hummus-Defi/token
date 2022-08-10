@@ -278,7 +278,7 @@ contract MasterHummus is
         PoolInfo storage pool = poolInfo[_pid];
         if (address(pool.rewarder) != address(0)) {
             bonusTokenAddress = address(pool.rewarder.rewardToken());
-            bonusTokenSymbol = IERC20Metadata(pool.rewarder.rewardToken()).symbol();
+            bonusTokenSymbol = IERC20Metadata(bonusTokenAddress).symbol();
         }
     }
 
