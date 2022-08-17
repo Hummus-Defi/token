@@ -18,6 +18,8 @@ import 'hardhat-contract-sizer'
 import 'hardhat-spdx-license-identifier'
 
 import { HardhatUserConfig } from 'hardhat/config'
+import './tasks/rewarder'
+import './tasks/staking'
 
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
@@ -83,7 +85,6 @@ const config: HardhatUserConfig = {
     },
 
     // contracts
-
     STAKING: {
       // MasterHummusV2
       42: '0x765099591EA91DFAb032dD12cBFbe5976319FdF4',
@@ -123,6 +124,12 @@ const config: HardhatUserConfig = {
       42: '0x44ba84500C5CeEB235653BA4952bc61F376847Ec',
       588: '0xF8F6F0C986B2dE4ABf1E8AAE12ffad3A376438D2',
       1088: '0x9F51f0D7F500343E969D28010C7Eb0Db1bCaAEf9',
+    },
+
+    // tokens
+    METIS: {
+      588: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
+      1088: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
     },
   },
   docgen: {

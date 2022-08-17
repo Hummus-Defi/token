@@ -22,8 +22,8 @@ contract Rewarder is IRewarder, Ownable, ReentrancyGuard {
 
     IERC20 public immutable override rewardToken;
     IERC20 public immutable lpToken;
-    bool public immutable isNative;
     IMasterHummus public immutable farm;
+    bool public immutable isNative;
 
     /// @notice Info of each farm user.
     /// `amount` LP token amount the user has provided.
@@ -63,8 +63,8 @@ contract Rewarder is IRewarder, Ownable, ReentrancyGuard {
     constructor(
         IERC20 _rewardToken,
         IERC20 _lpToken,
-        uint256 _tokenPerSec,
         IMasterHummus _farm,
+        uint256 _tokenPerSec,
         bool _isNative
     ) {
         require(Address.isContract(address(_rewardToken)), 'constructor: reward token must be a valid contract');
