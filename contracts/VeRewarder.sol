@@ -148,7 +148,7 @@ contract VeRewarder is IRewarder, Ownable, ReentrancyGuard {
     function onHumReward(address _user, uint256 _lpAmount) external override onlyFarm nonReentrant returns (uint256) {
         updatePool();
 
-        PoolInfo memory pool = poolInfo;
+        PoolInfo storage pool = poolInfo;
         UserInfo storage user = userInfo[_user];
 
         uint256 pending;
