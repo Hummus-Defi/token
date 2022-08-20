@@ -124,19 +124,19 @@ const config: HardhatUserConfig = {
     HLPDAI_OLD: {
       42: '0x53211440f038dBBe9DE1B9fa58757cb430ecb752',
       588: '0x1c03ec1cc105fb925fce78155dd81def896237f7',
-      1088: '',
+      1088: '0xd5A0760D55ad46B6A1C46D28725e4C117312a7aD',
     },
     HLPDAI: {
       588: '0xad78bb846eaf59f3fab8088e905c9d525dd7b2f1',
-      1088: '0xd5A0760D55ad46B6A1C46D28725e4C117312a7aD',
+      1088: '0x0CAd02c4c6fB7c0d403aF74Ba9adA3bf40df6478',
     },
     HLPUSDC_MAI: {
       588: '0xa179c9df25c4a80ecfa8ec3788d3c055b1b2bab2',
-      1088: '',
+      1088: '0x8a19e755610aECB3c55BdE4eCfb9185ef0267400',
     },
     HLPMAI: {
       588: '0x409862b7758577952971a0350935bca4a54c63c0',
-      1088: '',
+      1088: '0x3Eaa426861a283F0E46b6411aeB3C3608B090E0e',
     },
 
     // tokens
