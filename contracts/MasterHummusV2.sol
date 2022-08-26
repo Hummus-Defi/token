@@ -645,6 +645,12 @@ contract MasterHummusV2 is
         user.amount = 0;
         user.rewardDebt = 0;
 
+        // reset rewarder
+        IRewarder rewarder = pool.rewarder;
+        if (address(rewarder) != address(0)) {
+            rewarder.onHumReward(msg.sender, 0);
+        }
+
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
     }
 
