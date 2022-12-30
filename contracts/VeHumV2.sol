@@ -263,14 +263,14 @@ contract VeHumV2 is
         // update last release time
         users[_addr].lastRelease = block.timestamp;
 
-        // payout extra rewards, if any
-        if (address(rewarder) != address(0)) {
-            rewarder.onHumReward(_addr, balanceOf(_addr));
-        }
-
         if (amount > 0) {
             emit Claimed(_addr, amount);
             _mint(_addr, amount);
+
+            // payout extra rewards, if any
+            if (address(rewarder) != address(0)) {
+                rewarder.onHumReward(_addr, balanceOf(_addr));
+            }
         }
     }
 
