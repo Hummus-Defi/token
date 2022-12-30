@@ -40,6 +40,26 @@ task('deploy-verewarder', 'Deploy a VeRewarder')
     })
   })
 
+  task('deploy-vehumrewarder', 'Deploy a VeHumRewarder')
+  .addOptionalParam('rate', 'The amount of tokens to emit per second', '0', types.string)
+  .addOptionalParam('reward', 'The address of the reward token, only if non-native', undefined, types.string)
+  .setAction(async ({ rate, reward }, { ethers, getNamedAccounts, run }) => {
+    const { METIS, ESCROW } = await getNamedAccounts()
+
+    const args = [reward ?? METIS, ESCROW, rate, reward ? false : true]
+
+    console.log('Deploying VeHumRewarder...')
+    const factory = await ethers.getContractFactory('VeHumRewarder')
+    const rewarder = await factory.deploy(...args)
+    await rewarder.deployed()
+    console.log('Deployed to:', rewarder.address)
+
+    await run('verify:verify', {
+      address: rewarder.address,
+      constructorArguments: args,
+    })
+  })
+
 task('fund-rewarder', 'Fund a Rewarder')
   .addParam('rewarder', 'The address of the Rewarder to fund', undefined, types.string)
   .addParam('amount', 'The amount of tokens to send the Rewarder', '0', types.string)

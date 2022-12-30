@@ -3,8 +3,7 @@ import 'dotenv/config'
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-solhint'
-// import '@nomiclabs/hardhat-etherscan'
-import 'metis-sourcecode-verify'
+import '@nomiclabs/hardhat-etherscan'
 import '@typechain/hardhat'
 import '@openzeppelin/hardhat-upgrades'
 import 'solidity-coverage'
@@ -22,25 +21,10 @@ import './tasks/rewarder'
 import './tasks/staking'
 
 const config: HardhatUserConfig = {
-  defaultNetwork: 'hardhat',
   networks: {
-    mainnet: {
-      url: process.env.ALCHEMY_API || '',
-      gasPrice: 140 * 1000000000,
-    },
-    rinkeby: {
-      url: process.env.RINKEBY_API || '',
-      chainId: 4,
-      gasPrice: 5 * 1000000000,
-    },
-    kovan: {
-      url: process.env.KOVAN_API || '',
-      chainId: 42,
-      gasPrice: 2 * 1000000000,
-    },
-    stardust: {
-      url: 'https://stardust.metis.io/?owner=588',
-      chainId: 588,
+    goerli: {
+      url: 'https://goerli.gateway.metisdevops.link',
+      chainId: 599,
     },
     andromeda: {
       url: 'https://andromeda.metis.io/?owner=1088',
@@ -61,7 +45,7 @@ const config: HardhatUserConfig = {
     ],
   },
   typechain: {
-    outDir: './build/typechain/',
+    outDir: './build/typechain',
     target: 'ethers-v5',
   },
   abiExporter: {
@@ -87,111 +71,101 @@ const config: HardhatUserConfig = {
     // contracts
     STAKING: {
       // MasterHummusV2
-      42: '0x765099591EA91DFAb032dD12cBFbe5976319FdF4',
-      588: '0x248fD66e6ED1E0B325d7b80F5A7e7d8AA2b2528b',
+      599: '0x838b73a945cF42e07f316a9d0a5715e8B5B973c9',
       1088: '0x9cadd693cDb2B118F00252Bb3be4C6Df6A74d42C',
     },
     TOKEN: {
       // Hum
-      42: '0xe8Eb8149ac20d75C5fAE054FE5C3A9688aCa8c67',
-      588: '0x8b2AF921F3eaef0d9D6a47B65E1F7F83bEfB2f1f',
+      599: '0x9cadd693cDb2B118F00252Bb3be4C6Df6A74d42C',
       1088: '0x4aAC94985cD83be30164DfE7e9AF7C054D7d2121',
     },
     ESCROW: {
-      // veHum
-      42: '0x955514d7e1DB34BB612c7a0Bbd63D25eA02dD29A',
-      588: '0xd5A0760D55ad46B6A1C46D28725e4C117312a7aD',
+      // VeHumV2
+      599: '0x5FfdD3A5DF7fdB5f3206E25B09681B4b11de4180',
       1088: '0x89351BEAA4AbbA563710864051a8C253E7b3E16d',
     },
     WHITELIST: {
-      42: '0x927BADD28b3AF1156e9cCAb2F0FA3AFb13af8b65',
-      588: '0x3878edF8E00fD8e29812A9379303F539ea012C5F',
+      599: '0xb999a120CBB6a6e01Ae8e5fAdBebD2014731F8D8',
       1088: '0xd5A67E95f21155f147be33562158a453Aa423840',
     },
 
-    // lp assets
+    // lp assets - listed in PID order
 
     HLPUSDC: {
-      42: '0x0F6f2E19Bc2Ad2b847dd329A0D89DC0043003754',
-      588: '0x8531939828265a346b4554b8e6478e6c12383952',
+      599: '0x25748645193FD23102CEFE2f62Ea688E17afFBC5',
       1088: '0x9E3F3Be65fEc3731197AFF816489eB1Eb6E6b830',
     },
     HLPUSDT: {
-      42: '0x44ba84500C5CeEB235653BA4952bc61F376847Ec',
-      588: '0x9421c84388218e85f7274fe67ed316ffc524eb4b',
+      599: '0x26083dD68999f46B79783DD25Fd2ed094ef7EAe8',
       1088: '0x9F51f0D7F500343E969D28010C7Eb0Db1bCaAEf9',
     },
-    HLPDAI_OLD: {
-      42: '0x53211440f038dBBe9DE1B9fa58757cb430ecb752',
-      588: '0x1c03ec1cc105fb925fce78155dd81def896237f7',
+    HLPDAI: {
+      599: '0x2e08D7A362a4d45Da76429a04E3DC6019E145794',
       1088: '0xd5A0760D55ad46B6A1C46D28725e4C117312a7aD',
     },
-    HLPDAI: {
-      588: '0xad78bb846eaf59f3fab8088e905c9d525dd7b2f1',
+    HLPDAI_V2: {
+      599: '0x1BF3c7B140867293F131548222DC1B5dD0baEd2B',
       1088: '0x0CAd02c4c6fB7c0d403aF74Ba9adA3bf40df6478',
     },
     HLPUSDC_MAI: {
-      588: '0xa179c9df25c4a80ecfa8ec3788d3c055b1b2bab2',
+      599: '0x56990c5c86fe2afFdd9c7d28b9f85ef1C7a691Fe',
       1088: '0x8a19e755610aECB3c55BdE4eCfb9185ef0267400',
     },
     HLPMAI: {
-      588: '0x409862b7758577952971a0350935bca4a54c63c0',
+      599: '0x2545b20912DeECa12a29BE7F6DCD9A5a56630eBf',
       1088: '0x3Eaa426861a283F0E46b6411aeB3C3608B090E0e',
+    },
+    HLPBUSD: {
+      599: '0x3bfAAD9C299Af01AF1eB1c51cd934753dA000531',
+      1088: '0x919395161Dd538aa0fB065A8EaC878B18D07FbCd',
     },
 
     // tokens
     METIS: {
-      588: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
+      599: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
       1088: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
     },
   },
-  docgen: {
-    path: './docs',
-    clear: true,
-    runOnCompile: false,
-    except: ['/test/*', '/mock/*', '/hardhat-proxy/*'],
-  },
+  // docgen: {
+  //   path: './docs',
+  //   clear: true,
+  //   runOnCompile: false,
+  //   except: ['/test/*', '/mock/*', '/hardhat-proxy/*'],
+  // },
   etherscan: {
-    // API key for snowtrace.io
-    apiKey: {
-      metisAndromeda: 'api-key',
-      metisStardust: 'api-key',
-    },
+    apiKey: 'api-key',
+    customChains: [
+      {
+        network: "andromeda",
+        chainId: 1088,
+        urls: {
+          apiURL: "https://andromeda-explorer.metis.io/api",
+          browserURL: "https://andromeda-explorer.metis.io",
+        },
+      },
+      {
+        network: "goerli",
+        chainId: 599,
+        urls: {
+          apiURL: "https://goerli.explorer.metisdevops.link/api",
+          browserURL: "https://goerli.explorer.metisdevops.link",
+        },
+      },
+    ],
   },
 }
 
 if (process.env.ACCOUNT_PRIVATE_KEYS) {
   config.networks = {
     ...config.networks,
-    mainnet: {
-      ...config.networks?.mainnet,
-      accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
-    },
-    rinkeby: {
-      ...config.networks?.rinkeby,
-      accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
-    },
-    kovan: {
-      ...config.networks?.kovan,
-      accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
-    },
-    stardust: {
-      ...config.networks?.stardust,
+    goerli: {
+      ...config.networks?.goerli,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
     andromeda: {
       ...config.networks?.andromeda,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-  }
-}
-
-if (process.env.FORK_MAINNET && config.networks) {
-  config.networks.hardhat = {
-    forking: {
-      url: process.env.ALCHEMY_API ? process.env.ALCHEMY_API : '',
-    },
-    chainId: 1,
   }
 }
 
