@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@rari-capital/solmate/src/tokens/ERC20.sol';
 
 interface IBribe {
     function onVote(
@@ -12,5 +12,5 @@ interface IBribe {
 
     function pendingTokens(address user) external view returns (uint256 pending);
 
-    function rewardToken() external view returns (IERC20);
+    function rewardToken() external view returns (ERC20);
 }

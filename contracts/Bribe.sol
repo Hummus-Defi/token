@@ -64,7 +64,7 @@ contract Bribe is IBribe, Ownable, ReentrancyGuard {
     event RewardRateUpdated(uint256 oldRate, uint256 newRate);
 
     modifier onlyVoter() {
-        require(msg.sender == address(voter), 'onlyVoter: only MasterPlatypus can call this function');
+        require(msg.sender == address(voter), 'onlyVoter: only MasterHummus can call this function');
         _;
     }
 
