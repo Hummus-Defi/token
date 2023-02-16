@@ -8,14 +8,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@rari-capital/solmate/src/utils/SafeTransferLib.sol';
 import '@rari-capital/solmate/src/tokens/ERC20.sol';
 import './interfaces/IBribe.sol';
-
-interface IVoter {
-    // lpToken => weight, equals to sum of votes for a LP token
-    function weights(address _lpToken) external view returns (uint256);
-
-    // user address => lpToken => votes
-    function votes(address _user, address _lpToken) external view returns (uint256);
-}
+import './interfaces/IVoter.sol';
 
 /**
  * Simple bribe per sec. Distribute bribe rewards to voters

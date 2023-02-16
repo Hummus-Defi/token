@@ -33,7 +33,6 @@ interface IVe {
 /// Note: This should also works with boosted pool. But it doesn't work with interest rate model
 /// Note 2: Please refer to the comment of BaseMasterHummusV2.notifyRewardAmount for front-running risk
 ///
-/// https://snowtrace.io/address/0x8a31e768c396a5c0253967ae56792009cb5280b5#code
 contract Voter is Initializable, SafeOwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable {
     struct LpTokenInfo {
         uint128 claimable; // 20.18 fixed point. claimable HUM

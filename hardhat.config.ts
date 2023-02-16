@@ -51,7 +51,7 @@ const config: HardhatUserConfig = {
   abiExporter: {
     flat: true,
     clear: true,
-    runOnCompile: true,
+    runOnCompile: false,
     path: './build/abi',
   },
   spdxLicenseIdentifier: {
@@ -87,6 +87,14 @@ const config: HardhatUserConfig = {
     WHITELIST: {
       599: '0xb999a120CBB6a6e01Ae8e5fAdBebD2014731F8D8',
       1088: '0xd5A67E95f21155f147be33562158a453Aa423840',
+    },
+    VOTER: {
+      599: '0x5ec678ff6B18D25942735cba117640898aF195A3',
+      1088: ''
+    },
+    STAKING_V3: {
+      599: '0x0776Ce3aD98Eb160fc75b67A4CD55C0976B0A597',
+      1088: ''
     },
 
     // lp assets - listed in PID order
