@@ -19,6 +19,7 @@ import 'hardhat-spdx-license-identifier'
 import { HardhatUserConfig } from 'hardhat/config'
 import './tasks/rewarder'
 import './tasks/staking'
+import './tasks/bribe'
 
 const config: HardhatUserConfig = {
   networks: {
@@ -71,7 +72,8 @@ const config: HardhatUserConfig = {
     // contracts
     STAKING: {
       // MasterHummusV2
-      599: '0x838b73a945cF42e07f316a9d0a5715e8B5B973c9',
+      // 599: '0x838b73a945cF42e07f316a9d0a5715e8B5B973c9',
+      599: '0x871BD2Ad5D27568D09BEd1Baa31cCa20F4f73BCe',
       1088: '0x9cadd693cDb2B118F00252Bb3be4C6Df6A74d42C',
     },
     TOKEN: {
@@ -132,6 +134,10 @@ const config: HardhatUserConfig = {
     METIS: {
       599: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
       1088: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
+    },
+    QI: {
+      599: '0x5d7FB1329d87467752a6Eb82Bca2530152992020',
+      1088: '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d',
     },
   },
   // docgen: {
