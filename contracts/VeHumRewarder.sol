@@ -132,7 +132,7 @@ contract VeHumRewarder is IRewarder, Ownable, ReentrancyGuard {
                     user.unpaidRewards = pending - tokenBalance;
                 } else {
                     (bool success, ) = _user.call{value: pending}('');
-                    payout = tokenBalance;
+                    payout = pending;
                     require(success, 'Transfer failed');
                     user.unpaidRewards = 0;
                 }
