@@ -92,11 +92,11 @@ const config: HardhatUserConfig = {
     },
     VOTER: {
       599: '0x5ec678ff6B18D25942735cba117640898aF195A3',
-      1088: ''
+      1088: '0xCfe81Cc985a7Bc7715CcA856EDc2517059ec7b37',
     },
     STAKING_V3: {
       599: '0x0776Ce3aD98Eb160fc75b67A4CD55C0976B0A597',
-      1088: ''
+      1088: '0x9c3cdE31f153FBCE9Bbee1fa9a6596AbE9BA40fC',
     },
 
     // lp assets - listed in PID order

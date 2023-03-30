@@ -71,12 +71,13 @@ contract MasterHummusV3 is
         _;
     }
 
-    function initialize(
-        IERC20 _hum,
-        IVeHum _veHum,
-        address _voter,
-        uint16 _dilutingRepartition
-    ) public initializer {
+    /// @dev Modifier ensuring that certain function can only be called by Voter
+    modifier onlyVoter() {
+        require(address(voter) == msg.sender, 'notVoter: wut?');
+        _;
+    }
+
+    function initialize(IERC20 _hum, IVeHum _veHum, address _voter, uint16 _dilutingRepartition) public initializer {
         require(address(_hum) != address(0), 'hum address cannot be zero');
         require(address(_veHum) != address(0), 'veHum address cannot be zero');
         require(address(_voter) != address(0), 'voter address cannot be zero');
@@ -184,12 +185,9 @@ contract MasterHummusV3 is
 
     /// @notice Get bonus token info from the rewarder contract for a given pool, if it is a double reward farm
     /// @param _pid the pool id
-    function rewarderBonusTokenInfo(uint256 _pid)
-        public
-        view
-        override
-        returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols)
-    {
+    function rewarderBonusTokenInfo(
+        uint256 _pid
+    ) public view override returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols) {
         PoolInfo storage pool = poolInfo[_pid];
         if (address(pool.rewarder) == address(0)) {
             return (bonusTokenAddresses, bonusTokenSymbols);
@@ -229,6 +227,7 @@ contract MasterHummusV3 is
     /// Note: This looks safe from reentrancy.
     function notifyRewardAmount(address _lpToken, uint256 _amount) external override {
         require(_amount > 0, 'MasterHummus: zero amount');
+        require(msg.sender == voter, 'MasterHummus: only voter');
 
         // this line reverts if asset is not in the list
         uint256 pid = lpTokens._inner._indexes[bytes32(uint256(uint160(_lpToken)))] - 1;
@@ -282,11 +281,7 @@ contract MasterHummusV3 is
     /// @param _pid the pool id
     /// @param _amount amount to deposit
     /// @param _user the user being represented
-    function depositFor(
-        uint256 _pid,
-        uint256 _amount,
-        address _user
-    ) external override nonReentrant whenNotPaused {
+    function depositFor(uint256 _pid, uint256 _amount, address _user) external override nonReentrant whenNotPaused {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
 
@@ -303,13 +298,10 @@ contract MasterHummusV3 is
     /// @dev it is possible to call this function with _amount == 0 to claim current rewards
     /// @param _pid the pool id
     /// @param _amount amount to deposit
-    function deposit(uint256 _pid, uint256 _amount)
-        external
-        override
-        nonReentrant
-        whenNotPaused
-        returns (uint256 reward, uint256[] memory additionalRewards)
-    {
+    function deposit(
+        uint256 _pid,
+        uint256 _amount
+    ) external override nonReentrant whenNotPaused returns (uint256 reward, uint256[] memory additionalRewards) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
 
@@ -323,30 +315,23 @@ contract MasterHummusV3 is
 
     /// @notice claims rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function multiClaim(uint256[] calldata _pids)
+    function multiClaim(
+        uint256[] calldata _pids
+    )
         external
         override
         nonReentrant
         whenNotPaused
-        returns (
-            uint256 reward,
-            uint256[] memory amounts,
-            uint256[][] memory additionalRewards
-        )
+        returns (uint256 reward, uint256[] memory amounts, uint256[][] memory additionalRewards)
     {
         return _multiClaim(_pids);
     }
 
     /// @notice private function to claim rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function _multiClaim(uint256[] memory _pids)
-        private
-        returns (
-            uint256 reward,
-            uint256[] memory amounts,
-            uint256[][] memory additionalRewards
-        )
-    {
+    function _multiClaim(
+        uint256[] memory _pids
+    ) private returns (uint256 reward, uint256[] memory amounts, uint256[][] memory additionalRewards) {
         // accumulate rewards for each one of the pids in pending
         amounts = new uint256[](_pids.length);
         additionalRewards = new uint256[][](_pids.length);
@@ -399,7 +384,10 @@ contract MasterHummusV3 is
     /// @notice View function to see pending HUMs on frontend.
     /// @param _pid the pool id
     /// @param _user the user address
-    function pendingTokens(uint256 _pid, address _user)
+    function pendingTokens(
+        uint256 _pid,
+        address _user
+    )
         external
         view
         override
@@ -517,13 +505,10 @@ contract MasterHummusV3 is
     /// @notice Automatically harvest pending rewards and sends to user
     /// @param _pid the pool id
     /// @param _amount the amount to withdraw
-    function withdraw(uint256 _pid, uint256 _amount)
-        external
-        override
-        nonReentrant
-        whenNotPaused
-        returns (uint256 reward, uint256[] memory additionalRewards)
-    {
+    function withdraw(
+        uint256 _pid,
+        uint256 _amount
+    ) external override nonReentrant whenNotPaused returns (uint256 reward, uint256[] memory additionalRewards) {
         (reward, additionalRewards) = _withdrawFor(_pid, msg.sender, msg.sender, _amount);
     }
 
