@@ -40,7 +40,7 @@ task('deploy-verewarder', 'Deploy a VeRewarder')
     })
   })
 
-  task('deploy-vehumrewarder', 'Deploy a VeHumRewarder')
+task('deploy-vehumrewarder', 'Deploy a VeHumRewarder')
   .addOptionalParam('rate', 'The amount of tokens to emit per second', '0', types.string)
   .addOptionalParam('reward', 'The address of the reward token, only if non-native', undefined, types.string)
   .setAction(async ({ rate, reward }, { ethers, getNamedAccounts, run }) => {
@@ -50,6 +50,28 @@ task('deploy-verewarder', 'Deploy a VeRewarder')
 
     console.log('Deploying VeHumRewarder...')
     const factory = await ethers.getContractFactory('VeHumRewarder')
+    const rewarder = await factory.deploy(...args)
+    await rewarder.deployed()
+    console.log('Deployed to:', rewarder.address)
+
+    await run('verify:verify', {
+      address: rewarder.address,
+      constructorArguments: args,
+    })
+  })
+
+task('deploy-boosted-rewarder', 'Deploy a BoostedMultiRewarderV2 contract')
+  .addParam('lp', 'The address of the LP Token', ethers.constants.AddressZero, types.string)
+  .addOptionalParam('rate', 'The amount of tokens to emit per second', '0', types.string)
+  .addOptionalParam('dilutingRepartition', 'The dialuting reward portion', 375, types.int)
+  .addOptionalParam('reward', 'The address of the reward token, only if non-native', undefined, types.string)
+  .setAction(async ({ lp, rate, dilutingRepartition, reward }, { ethers, getNamedAccounts, run }) => {
+    const { METIS, STAKING_V3 } = await getNamedAccounts()
+
+    const args = [STAKING_V3, lp, 0, dilutingRepartition, reward ?? METIS, rate]
+
+    console.log('Deploying BoostedMultiRewarderPerSecV2...')
+    const factory = await ethers.getContractFactory('BoostedMultiRewarderPerSecV2')
     const rewarder = await factory.deploy(...args)
     await rewarder.deployed()
     console.log('Deployed to:', rewarder.address)

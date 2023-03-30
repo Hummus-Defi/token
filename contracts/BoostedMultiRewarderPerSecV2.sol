@@ -75,7 +75,7 @@ contract BoostedMultiRewarderPerSecV2 is BoostedMultiRewarderPerSec {
                     user.claimable -
                     user.rewardDebt;
 
-                if (address(rewardToken) == address(0)) {
+                if (address(rewardToken) == METIS) {
                     // is native token
                     uint256 tokenBalance = address(this).balance;
                     if (pending >= tokenBalance) {

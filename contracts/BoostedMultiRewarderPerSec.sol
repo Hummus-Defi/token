@@ -201,7 +201,7 @@ contract BoostedMultiRewarderPerSec is IBoostedMultiRewarder, Ownable, Reentranc
                     user.claimable -
                     user.rewardDebt;
 
-                if (address(rewardToken) == address(0)) {
+                if (address(rewardToken) == METIS) {
                     // is native token
                     uint256 tokenBalance = address(this).balance;
                     if (pending > tokenBalance) {
@@ -330,7 +330,7 @@ contract BoostedMultiRewarderPerSec is IBoostedMultiRewarder, Ownable, Reentranc
 
         for (uint256 i; i < length; ++i) {
             PoolInfo storage pool = poolInfo[i];
-            if (address(pool.rewardToken) == address(0)) {
+            if (address(pool.rewardToken) == METIS) {
                 // is native token
                 (bool success, ) = msg.sender.call{value: address(this).balance}('');
                 require(success, 'Transfer failed');
