@@ -50,9 +50,9 @@ const config: HardhatUserConfig = {
     target: 'ethers-v5',
   },
   abiExporter: {
-    flat: true,
+    flat: false,
     clear: true,
-    runOnCompile: false,
+    runOnCompile: true,
     path: './build/abi',
   },
   spdxLicenseIdentifier: {
