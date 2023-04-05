@@ -12,6 +12,7 @@ import './interfaces/IMasterHummus.sol';
 import './libraries/Math.sol';
 import './libraries/SafeOwnableUpgradeable.sol';
 import './interfaces/IVeHumV4.sol';
+import './interfaces/IHummusNFT.sol';
 import './interfaces/IRewarder.sol';
 
 /// @title VeHumV4
@@ -87,16 +88,15 @@ contract VeHumV4 is
     // note Staking user info
     mapping(address => UserInfo) public users;
 
-    uint256 public maxNftLevel;
-    uint256 public xpEnableTime;
+    /// @notice token rewarder address
+    IRewarder public rewarder;
 
-    // reserve more space for extensibility
-    uint256[100] public xpRequiredForLevelUp;
-
+    /// @notice voter address
     address public voter;
 
     /// @notice amount of vote used currently for each user
     mapping(address => uint256) public usedVote;
+
     /// @notice store the last block when a contract stake NFT
     mapping(address => uint256) internal lastBlockToStakeNftByContract;
 
@@ -163,9 +163,6 @@ contract VeHumV4 is
 
         // set nft, can be zero address at first
         nft = _nft;
-
-        initializeNft();
-        initializeLockDays();
     }
 
     function _verifyVoteIsEnough(address _user) internal view {
@@ -176,18 +173,13 @@ contract VeHumV4 is
         require(msg.sender == voter, 'VeHum: caller is not voter');
     }
 
-    function initializeNft() public onlyOwner {
-        maxNftLevel = 1; // to enable leveling, call setMaxNftLevel
-        xpRequiredForLevelUp = [uint256(0), 3000 ether, 30000 ether, 300000 ether, 3000000 ether];
-    }
-
     function initializeLockDays() public onlyOwner {
         minLockDays = 7; // 1 week
         maxLockDays = 357; // 357/(365/12) ~ 11.7 months
         maxLockCap = 120; // < 12 month max lock
 
         // ~18 month max stake, can set separately
-        // maxStakeCap = 180;
+        maxStakeCap = 180;
     }
 
     /**
@@ -244,6 +236,13 @@ contract VeHumV4 is
         whitelist = _whitelist;
     }
 
+    /// @notice sets rewarder address
+    /// @param _rewarder the new whitelist address
+    function setRewarder(IRewarder _rewarder) external onlyOwner {
+        require(address(_rewarder) != address(0), 'zero address');
+        rewarder = _rewarder;
+    }
+
     /// @notice sets maxStakeCap
     /// @param _maxStakeCap the new max ratio
     function setMaxStakeCap(uint256 _maxStakeCap) external onlyOwner {
@@ -266,18 +265,7 @@ contract VeHumV4 is
         invVoteThreshold = _invVoteThreshold;
     }
 
-    /// @notice sets setMaxNftLevel, the first time this function is called, leveling will be enabled
-    /// @param _maxNftLevel the new var
-    function setMaxNftLevel(uint8 _maxNftLevel) external onlyOwner {
-        maxNftLevel = _maxNftLevel;
-
-        if (xpEnableTime == 0) {
-            // enable users to accumulate timestamp the first time this function is invoked
-            xpEnableTime = block.timestamp;
-        }
-    }
-
-    /// @notice checks wether user _addr has hum staked
+    /// @notice checks whether user _addr has hum staked
     /// @param _addr the user address to check
     /// @return true if the user has hum in stake, false otherwise
     function isUserStaking(address _addr) public view override returns (bool) {
@@ -541,9 +529,7 @@ contract VeHumV4 is
     /// @dev private claim function
     /// @param _addr the address of the user to claim from
     function _claim(address _addr) private {
-        uint256 amount;
-        uint256 xp;
-        (amount, xp) = _claimable(_addr);
+        uint256 amount = _claimable(_addr);
 
         UserInfo storage user = users[_addr];
 
@@ -553,17 +539,10 @@ contract VeHumV4 is
         if (amount > 0) {
             emit Claimed(_addr, amount);
             _mint(_addr, amount);
-        }
 
-        if (xp > 0) {
-            uint256 nftId = user.stakedNftId;
-
-            // if nftId > 0, user has nft staked
-            if (nftId > 0) {
-                --nftId; // remove offset
-
-                // level is already validated in _claimable()
-                nft.growXp(nftId, xp);
+            // payout extra rewards, if any
+            if (address(rewarder) != address(0)) {
+                rewarder.onHumReward(_addr, balanceOf(_addr));
             }
         }
     }
@@ -585,24 +564,14 @@ contract VeHumV4 is
     /// @return amount of veHUM that can be claimed by user
     function claimable(address _addr) external view returns (uint256 amount) {
         require(_addr != address(0), 'zero address');
-        (amount, ) = _claimable(_addr);
-    }
-
-    /// @notice Calculate the amount of veHUM that can be claimed by user
-    /// @param _addr the address to check
-    /// @return amount of veHUM that can be claimed by user
-    /// @return xp potential xp for NFT staked
-    function claimableWithXp(address _addr) external view returns (uint256 amount, uint256 xp) {
-        require(_addr != address(0), 'zero address');
-        return _claimable(_addr);
+        amount= _claimable(_addr);
     }
 
     /// @notice Calculate the amount of veHUM that can be claimed by user
     /// @dev private claimable function
     /// @param _addr the address to check
     /// @return amount of veHUM that can be claimed by user
-    /// @return xp potential xp for NFT staked
-    function _claimable(address _addr) private view returns (uint256 amount, uint256 xp) {
+    function _claimable(address _addr) private view returns (uint256 amount) {
         UserInfo storage user = users[_addr];
 
         // get seconds elapsed since last claim
@@ -616,52 +585,7 @@ contract VeHumV4 is
         uint256 userVeHumBalance = veHumGeneratedByStake(_addr);
 
         // user veHUM balance cannot go above user.amount * maxStakeCap
-        uint256 maxVeHumCap = user.amount * maxStakeCap;
-
-        // handle nft effects
-        uint256 nftId = user.stakedNftId;
-        // if nftId > 0, user has nft staked
-        if (nftId > 0) {
-            --nftId; // remove offset
-            uint32 speedo;
-            uint32 pudgy;
-            uint32 diligent;
-            uint32 gifted;
-            (speedo, pudgy, diligent, gifted, ) = nft.getHummusDetails(nftId);
-
-            if (speedo > 0) {
-                // Speedo: x% faster veHUM generation
-                pending = (pending * (100 + speedo)) / 100;
-            }
-            if (diligent > 0) {
-                // Diligent: +D veHUM every hour (subject to cap)
-                pending += ((uint256(diligent) * (10**decimals())) * secondsElapsed) / 1 hours;
-            }
-            if (pudgy > 0) {
-                // Pudgy: x% higher veHUM cap
-                maxVeHumCap = (maxVeHumCap * (100 + pudgy)) / 100;
-            }
-            if (gifted > 0) {
-                // Gifted: +D veHUM regardless of HUM staked
-                // The cap should also increase D
-                maxVeHumCap += uint256(gifted) * (10**decimals());
-            }
-
-            uint256 level = nft.getHummusLevel(nftId);
-            if (level < maxNftLevel) {
-                // Accumulate XP only after leveling is enabled
-                if (user.lastRelease >= xpEnableTime) {
-                    xp = pending;
-                } else {
-                    xp = (pending * (block.timestamp - xpEnableTime)) / (block.timestamp - user.lastRelease);
-                }
-                uint256 currentXp = nft.getHummusXp(nftId);
-
-                if (xp + currentXp > xpRequiredForLevelUp[level]) {
-                    xp = xpRequiredForLevelUp[level] - currentXp;
-                }
-            }
-        }
+        uint256 maxVeHumCap = user.amount * maxStakeCap;      
 
         // first, check that user hasn't reached the max limit yet
         if (userVeHumBalance < maxVeHumCap) {
@@ -677,7 +601,6 @@ contract VeHumV4 is
         } else {
             amount = 0;
         }
-        // Note: maxVeHumCap doesn't affect growing XP
     }
 
     /// @notice withdraws staked hum
@@ -688,25 +611,20 @@ contract VeHumV4 is
         require(_amount > 0, 'amount to withdraw cannot be zero');
         require(users[msg.sender].amount >= _amount, 'not enough balance');
 
-        uint256 nftId = users[msg.sender].stakedNftId;
-        if (nftId > 0) {
-            // claim to grow XP
-            _claim(msg.sender);
-        } else {
-            users[msg.sender].lastRelease = block.timestamp;
-        }
-
-        // get user veHUM balance that must be burned before updating his balance
-        uint256 valueToBurn = _veHumBurnedOnWithdraw(msg.sender, _amount);
+        // reset last Release timestamp
+        users[msg.sender].lastRelease = block.timestamp;
 
         // update his balance before burning or sending back hum
         users[msg.sender].amount -= _amount;
 
-        _burn(msg.sender, valueToBurn);
+        // get user veHUM balance that must be burned
+        uint256 userVeHumBalance = balanceOf(msg.sender);
 
-        // unstake NFT if all HUM is unstaked
-        if (users[msg.sender].amount == 0 && users[msg.sender].stakedNftId != 0) {
-            _unstakeNft(msg.sender);
+        _burn(msg.sender, userVeHumBalance);
+
+        // reset rewarder
+        if (address(rewarder) != address(0)) {
+            rewarder.onHumReward(msg.sender, 0);
         }
 
         // send back the staked hum
@@ -715,52 +633,6 @@ contract VeHumV4 is
 
         // emit event
         emit Unstaked(msg.sender, _amount);
-    }
-
-    /// Calculate the amount of veHUM that will be burned when HUM is withdrawn
-    /// @param _amount the amount of hum to unstake
-    /// @return the amount of veHUM that will be burned
-    function veHumBurnedOnWithdraw(address _addr, uint256 _amount) external view returns (uint256) {
-        return _veHumBurnedOnWithdraw(_addr, _amount);
-    }
-
-    /// Private function to calculate the amount of veHUM that will be burned when HUM is withdrawn
-    /// Does NOT burn amount generated by locking upon withdrawal of staked HUM.
-    /// @param _amount the amount of hum to unstake
-    /// @return the amount of veHUM that will be burned
-    function _veHumBurnedOnWithdraw(address _addr, uint256 _amount) private view returns (uint256) {
-        require(_amount <= users[_addr].amount, 'not enough hum');
-        uint256 veHumBalance = veHumGeneratedByStake(_addr);
-        uint256 nftId = users[_addr].stakedNftId;
-
-        if (nftId == 0) {
-            // user doesn't have nft staked
-            return veHumBalance;
-        } else {
-            --nftId; // remove offset
-            (, , , uint32 gifted, uint32 hibernate) = nft.getHummusDetails(nftId);
-
-            if (gifted > 0) {
-                // Gifted: don't burn veHum given by Gifted
-                veHumBalance -= uint256(gifted) * (10**decimals());
-            }
-
-            // retain some veHUM using nft
-            // if it is a smart contract, check lastBlockToStakeNftByContract is not the current block
-            // in case of flash loan attack
-            if (
-                hibernate > 0 && (msg.sender == tx.origin || lastBlockToStakeNftByContract[msg.sender] != block.number)
-            ) {
-                // Hibernate: Retain x% veHUM of cap upon unstaking
-                return
-                    veHumBalance -
-                    (veHumBalance * hibernate * (users[_addr].amount - _amount)) /
-                    users[_addr].amount /
-                    100;
-            } else {
-                return veHumBalance;
-            }
-        }
     }
 
     /// @notice hook called after token operation mint/burn
@@ -792,18 +664,7 @@ contract VeHumV4 is
             lastBlockToStakeNftByContract[msg.sender] = block.number;
         }
 
-        _afterNftStake(msg.sender, _tokenId);
         emit StakedNft(msg.sender, _tokenId);
-    }
-
-    function _afterNftStake(address _addr, uint256 nftId) private {
-        uint32 gifted;
-        (, , , gifted, ) = nft.getHummusDetails(nftId);
-        // mint veHUM using nft
-        if (gifted > 0) {
-            // Gifted: +D veHUM regardless of HUM staked
-            _mint(_addr, uint256(gifted) * (10**decimals()));
-        }
     }
 
     /// @notice unstakes current user nft
@@ -826,18 +687,7 @@ contract VeHumV4 is
 
         users[_addr].stakedNftId = 0;
 
-        _afterNftUnstake(_addr, nftId);
         emit UnstakedNft(_addr, nftId);
-    }
-
-    function _afterNftUnstake(address _addr, uint256 nftId) private {
-        uint32 gifted;
-        (, , , gifted, ) = nft.getHummusDetails(nftId);
-        // burn veHUM minted by nft
-        if (gifted > 0) {
-            // Gifted: +D veHUM regardless of HUM staked
-            _burn(_addr, uint256(gifted) * (10**decimals()));
-        }
     }
 
     /// @notice gets id of the staked nft
@@ -850,116 +700,6 @@ contract VeHumV4 is
         return nftId - 1; // remove offset
     }
 
-    /// @notice level up the staked NFT
-    /// @param hummusToBurn token IDs of hummuses to burn
-    function levelUp(uint256[] calldata hummusToBurn) external override nonReentrant whenNotPaused {
-        uint256 nftId = users[msg.sender].stakedNftId;
-        require(nftId > 0, 'not staking NFT');
-        --nftId; // remove offset
-
-        uint16 level = nft.getHummusLevel(nftId);
-        require(level < maxNftLevel, 'max level reached');
-
-        uint256 sumOfLevels;
-
-        for (uint256 i; i < hummusToBurn.length; ++i) {
-            uint256 level_ = nft.getHummusLevel(hummusToBurn[i]); // 1 - 5
-            uint256 exp = nft.getHummusXp(hummusToBurn[i]);
-
-            // only count levels which maxXp is reached;
-            sumOfLevels += level_ - 1;
-            if (exp >= xpRequiredForLevelUp[level_]) {
-                ++sumOfLevels;
-            } else {
-                require(level_ > 1, 'invalid hummusToBurn');
-            }
-        }
-        require(sumOfLevels >= level, 'veHUM: wut are you burning?');
-
-        // claim vehum before level up
-        _claim(msg.sender);
-
-        // Remove effect from Gifted
-        _afterNftUnstake(msg.sender, nftId);
-
-        // require XP
-        require(nft.getHummusXp(nftId) >= xpRequiredForLevelUp[level], 'veHUM: XP not enough');
-
-        // skill acquiring
-        // acquire the primary skill of a burned hummus
-        {
-            uint256 contributor = 0;
-            if (hummusToBurn.length > 1) {
-                uint256 seed = _enoughRandom();
-                contributor = (seed >> 8) % hummusToBurn.length;
-            }
-
-            uint256 newAbility;
-            uint256 newPower;
-            (newAbility, newPower) = nft.getPrimaryAbility(hummusToBurn[contributor]);
-            nft.levelUp(nftId, newAbility, newPower);
-            require(nft.getHummusXp(nftId) == 0, 'veHUM: XP should reset');
-        }
-
-        // Re apply effect for Gifted
-        _afterNftStake(msg.sender, nftId);
-
-        // burn hummuses
-        for (uint16 i = 0; i < hummusToBurn.length; ++i) {
-            require(nft.ownerOf(hummusToBurn[i]) == msg.sender, 'veHUM: not owner');
-            nft.burn(hummusToBurn[i]);
-        }
-    }
-
-    /// @dev your sure?
-    function _enoughRandom() private view returns (uint256) {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        // solhint-disable-next-line
-                        block.timestamp,
-                        msg.sender,
-                        blockhash(block.number - 1)
-                    )
-                )
-            );
-    }
-
-    /// @notice level down the staked NFT
-    function levelDown() external override nonReentrant whenNotPaused {
-        uint256 nftId = users[msg.sender].stakedNftId;
-        require(nftId > 0, 'not staking NFT');
-        --nftId; // remove offset
-
-        require(nft.getHummusLevel(nftId) > 1, 'wut?');
-
-        _claim(msg.sender);
-
-        // Remove effect from Gifted
-        _afterNftUnstake(msg.sender, nftId);
-
-        nft.levelDown(nftId);
-
-        // grow to max XP after leveling down
-        uint256 maxXp = xpRequiredForLevelUp[nft.getHummusLevel(nftId)];
-        nft.growXp(nftId, maxXp);
-
-        // Apply effect for Gifted
-        _afterNftStake(msg.sender, nftId);
-
-        // vehum should be capped
-        uint32 pudgy;
-        uint32 gifted;
-        (, pudgy, , gifted, ) = nft.getHummusDetails(nftId);
-        uint256 maxVeHumCap = users[msg.sender].amount * maxStakeCap;
-        maxVeHumCap = (maxVeHumCap * (100 + pudgy)) / 100 + uint256(gifted) * (10**decimals());
-
-        if (veHumGeneratedByStake(msg.sender) > maxVeHumCap) {
-            _burn(msg.sender, veHumGeneratedByStake(msg.sender) - maxVeHumCap);
-        }
-    }
-
     /// @notice get votes for veHUM
     /// @dev votes should only count if account has > threshold% of current cap reached
     /// @dev invVoteThreshold = (1/threshold%)*100
@@ -967,18 +707,6 @@ contract VeHumV4 is
     /// @return the valid votes
     function getVotes(address _addr) external view virtual override returns (uint256) {
         uint256 veHumBalance = balanceOf(_addr);
-
-        uint256 nftId = users[_addr].stakedNftId;
-        // if nftId > 0, user has nft staked
-        if (nftId > 0) {
-            --nftId; //remove offset
-            uint32 gifted;
-            (, , , gifted, ) = nft.getHummusDetails(nftId);
-            // burn veHUM minted by nft
-            if (gifted > 0) {
-                veHumBalance -= uint256(gifted) * (10**decimals());
-            }
-        }
 
         // check that user has more than voting treshold of maxStakeCap and maxLockCap
         if (
@@ -991,7 +719,7 @@ contract VeHumV4 is
         }
     }
 
-    function vote(address _user, int256 _voteDelta) external {
+    function vote(address _user, int256 _voteDelta) external override {
         _onlyVoter();
 
         if (_voteDelta >= 0) {
