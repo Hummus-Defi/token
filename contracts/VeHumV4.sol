@@ -265,6 +265,13 @@ contract VeHumV4 is
         invVoteThreshold = _invVoteThreshold;
     }
 
+    /// @notice checks whether user _addr has hum lock
+    /// @param _addr the user address to check
+    /// @return true if the user has hum in lock, false otherwise
+    function isUserLocking(address _addr) public view override returns (bool) {
+        return lockedPositions[_addr].humLocked > 0;
+    }
+
     /// @notice checks whether user _addr has hum staked
     /// @param _addr the user address to check
     /// @return true if the user has hum in stake, false otherwise
@@ -280,6 +287,13 @@ contract VeHumV4 is
     /// @notice [Deprecated] return the `maxStakeCap` for backward compatibility
     function maxCap() external view returns (uint256) {
         return maxStakeCap;
+    }
+
+    /// @notice returns locked amount of hum for user
+    /// @param _addr the user address to check
+    /// @return locked amount of hum
+    function getLockedHum(address _addr) external view override returns (uint256) {
+        return lockedPositions[_addr].humLocked;
     }
 
     /// @notice returns staked amount of hum for user
@@ -354,6 +368,7 @@ contract VeHumV4 is
         totalLockedHum += _amount;
 
         _mint(msg.sender, veHumToMint);
+        _claim(msg.sender);
 
         emit Lock(msg.sender, unlockTime, _amount, veHumToMint);
 
@@ -398,6 +413,8 @@ contract VeHumV4 is
         totalLockedHum += _amount;
 
         _mint(msg.sender, veHumToMint);
+        _claim(msg.sender);
+
         emit AddToLock(msg.sender, _amount, veHumToMint);
 
         return veHumToMint;
@@ -448,6 +465,7 @@ contract VeHumV4 is
         lockedPositions[msg.sender].veHumAmount = position.veHumAmount + uint128(veHumToMint);
 
         _mint(msg.sender, veHumToMint);
+        _claim(msg.sender);
 
         emit ExtendLock(msg.sender, _daysToExtend, newUnlockTime, veHumToMint);
 
@@ -471,6 +489,11 @@ contract VeHumV4 is
 
         // burn corresponding veHUM
         _burn(msg.sender, veHumToBurn);
+
+        // reset rewarder
+        if (address(rewarder) != address(0)) {
+            rewarder.onHumReward(msg.sender, balanceOf(msg.sender));
+        }
 
         // transfer the hum to the user
         hum.transfer(msg.sender, humToUnlock);
@@ -522,28 +545,31 @@ contract VeHumV4 is
 
     /// @notice claims accumulated veHUM
     function claim() external override nonReentrant whenNotPaused {
-        require(isUserStaking(msg.sender), 'user has no stake');
+        require(isUserStaking(msg.sender) || isUserLocking(msg.sender), 'user has no stake or lock');
         _claim(msg.sender);
     }
 
     /// @dev private claim function
     /// @param _addr the address of the user to claim from
     function _claim(address _addr) private {
-        uint256 amount = _claimable(_addr);
+        // claim accrued veHum for staked positions only
+        if (isUserStaking(_addr)) {
+            uint256 amount = _claimable(_addr);
 
-        UserInfo storage user = users[_addr];
+            UserInfo storage user = users[_addr];
 
-        // update last release time
-        user.lastRelease = block.timestamp;
+            // update last release time
+            user.lastRelease = block.timestamp;
 
-        if (amount > 0) {
-            emit Claimed(_addr, amount);
-            _mint(_addr, amount);
-
-            // payout extra rewards, if any
-            if (address(rewarder) != address(0)) {
-                rewarder.onHumReward(_addr, balanceOf(_addr));
+            if (amount > 0) {
+                emit Claimed(_addr, amount);
+                _mint(_addr, amount);
             }
+        }
+
+        // payout extra rewards, if any, based on veHum balance
+        if (address(rewarder) != address(0)) {
+            rewarder.onHumReward(_addr, balanceOf(_addr));
         }
     }
 
@@ -618,13 +644,13 @@ contract VeHumV4 is
         users[msg.sender].amount -= _amount;
 
         // get user veHUM balance that must be burned
-        uint256 userVeHumBalance = balanceOf(msg.sender);
+        uint256 userVeHumBalance = veHumGeneratedByStake(msg.sender);
 
         _burn(msg.sender, userVeHumBalance);
 
         // reset rewarder
         if (address(rewarder) != address(0)) {
-            rewarder.onHumReward(msg.sender, 0);
+            rewarder.onHumReward(msg.sender, balanceOf(msg.sender));
         }
 
         // send back the staked hum

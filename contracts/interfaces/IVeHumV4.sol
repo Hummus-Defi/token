@@ -8,7 +8,7 @@ import './IVeERC20.sol';
  * @dev Interface of the VeHum
  */
 interface IVeHumV4 is IVeERC20 {
-    function isUser(address _addr) external view returns (bool);
+    function isUserLocking(address _addr) external view returns (bool);
 
     function isUserStaking(address _addr) external view returns (bool);
 
@@ -33,6 +33,8 @@ interface IVeHumV4 is IVeERC20 {
     function vote(address _user, int256 _voteDelta) external;
 
     function getStakedNft(address _addr) external view returns (uint256);
+
+    function getLockedHum(address _addr) external view returns (uint256);
 
     function getStakedHum(address _addr) external view returns (uint256);
 
