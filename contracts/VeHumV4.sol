@@ -319,7 +319,7 @@ contract VeHumV4 is
     }
 
     function quoteExpectedVeHumAmount(uint256 _amount, uint256 _lockDays) external view returns (uint256) {
-        return _expectedVeHumAmount(_amount, _lockDays * 1 days);
+        return _expectedVeHumAmount(_amount, _lockDays * 1 minutes);
     }
 
     /// @notice locks HUM in the contract, immediately minting veHUM
@@ -344,8 +344,8 @@ contract VeHumV4 is
         require(_lockDays >= uint256(minLockDays) && _lockDays <= uint256(maxLockDays), 'lock days is invalid');
 
         // calculate veHUM to mint and unlock time
-        veHumToMint = _expectedVeHumAmount(_amount, _lockDays * 1 days);
-        uint256 unlockTime = block.timestamp + 1 days * _lockDays;
+        veHumToMint = _expectedVeHumAmount(_amount, _lockDays * 1 minutes);
+        uint256 unlockTime = block.timestamp + 1 minutes * _lockDays;
 
         // validate that cap is respected
         require(veHumToMint <= _amount * maxLockCap, 'lock cap is not respected');
@@ -442,12 +442,12 @@ contract VeHumV4 is
         // unless it is whitelisted
         _assertNotContract(msg.sender);
 
-        uint256 newUnlockTime = position.unlockTime + _daysToExtend * 1 days;
-        require(newUnlockTime - position.initialLockTime <= uint256(maxLockDays * 1 days), 'extend: too much days');
+        uint256 newUnlockTime = position.unlockTime + _daysToExtend * 1 minutes;
+        require(newUnlockTime - position.initialLockTime <= uint256(maxLockDays * 1 minutes), 'extend: too much days');
 
         // calculate amount of veHUM to mint for the extended days
         // distributive property of `_expectedVeHumAmount` is assumed
-        veHumToMint = _expectedVeHumAmount(position.humLocked, _daysToExtend * 1 days);
+        veHumToMint = _expectedVeHumAmount(position.humLocked, _daysToExtend * 1 minutes);
 
         uint256 _maxCap = maxLockCap;
         // max user veHum balance in case the extension was about to exceed lock
