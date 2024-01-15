@@ -1,6 +1,7 @@
 import { ethers, getNamedAccounts } from 'hardhat'
 
 const MINTING_TIMESTAMP = 1681948800 // 2023/04/20 12:00 AM GMT
+// const MINTING_TIMESTAMP = 1705270000 // Metis Sepolia
 
 async function main() {
   const { deployer, multisig } = await getNamedAccounts()

@@ -153,7 +153,7 @@ contract VeHumRewarder is IRewarder, Ownable, ReentrancyGuard {
 
         user.amount = _lpAmount;
         user.rewardDebt = (user.amount * (pool.accTokenPerShare)) / ACC_TOKEN_PRECISION;
-        emit OnReward(_user, pending - user.unpaidRewards);
+        emit OnReward(_user, payout);
         return payout;
     }
 
