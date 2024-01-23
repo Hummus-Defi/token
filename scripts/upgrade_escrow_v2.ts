@@ -1,12 +1,15 @@
-import { ethers, getNamedAccounts, upgrades } from "hardhat"
+import { ethers, getNamedAccounts, upgrades } from 'hardhat'
 
 async function main() {
   const { ESCROW } = await getNamedAccounts()
   const escrow = await ethers.getContractFactory('VeHumV2')
 
   // initialize
-  const upgrade = await upgrades.upgradeProxy(ESCROW, escrow, { unsafeAllow: ["delegatecall"]})
-  await upgrade.deployed();
+  const upgrade = await upgrades.upgradeProxy(ESCROW, escrow, {
+    unsafeAllow: ['delegatecall'],
+    unsafeAllowRenames: true,
+  })
+  await upgrade.deployed()
 }
 
 main()
