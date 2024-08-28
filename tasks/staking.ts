@@ -12,3 +12,13 @@ task('set-pool', 'Set the parameters of a pool')
     const tx = await farm.set(pid, points, rewarder, overwrite)
     await tx.wait()
   })
+
+task('add-pool', 'Set the parameters of a pool')
+  .addParam('address', 'The pool id', undefined, types.string)
+  .addOptionalParam('rewarder', 'The address of the Rewarder contract', ethers.constants.AddressZero, types.string)
+  .setAction(async ({ address, rewarder }, { ethers, getNamedAccounts }) => {
+    const { STAKING_V3 } = await getNamedAccounts()
+    const farm = await ethers.getContractAt('MasterHummusV3', STAKING_V3)
+    const tx = await farm.add(address, rewarder)
+    await tx.wait()
+  })

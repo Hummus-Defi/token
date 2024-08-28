@@ -173,6 +173,9 @@ const config: HardhatUserConfig = {
     HM80W20: {
       1088: '0x1972C18F098D1846f3143693F1c99cf37fEd8cE3',
     },
+    MM: {
+      1088: '0xB2deD52b11107eD4EF86Fc76cb43182dab844913'
+    },
 
     // tokens
     METIS: {
